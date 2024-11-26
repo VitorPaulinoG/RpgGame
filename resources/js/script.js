@@ -20,11 +20,25 @@ const background = new Sprite ({
         x: -1270,
         y: -850
     },
+    velocity: 3,
     image: mapImage 
 }, ctx);
 
 
-
+const keys = {
+    w: {
+        pressed: false
+    },
+    a: {
+        pressed: false
+    },
+    s: {
+        pressed: false
+    },
+    d: {
+        pressed: false
+    }
+}
 
 
 
@@ -33,6 +47,19 @@ function animate () {
     window.requestAnimationFrame(animate);
     background.draw();
     playerView.draw();
+
+    if (keys.w.pressed) {
+        background.position.y = background.position.y + background.velocity;
+    }
+    if (keys.s.pressed) {
+        background.position.y = background.position.y - background.velocity;
+    }
+    if (keys.a.pressed) {
+        background.position.x = background.position.x + background.velocity;
+    }
+    if (keys.d.pressed) {
+        background.position.x = background.position.x - background.velocity;
+    }
 }
 animate();
 
@@ -43,17 +70,38 @@ animate();
 window.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'w':
-            console.log('pressed w key');
+            if(!keys.s.pressed)
+                keys.w.pressed = true;
         break;
         case 's':
-            console.log('pressed s key');
+            if(!keys.w.pressed)
+                keys.s.pressed = true;
         break;
         case 'a':
-            console.log('pressed a key');
+            if(!keys.d.pressed)
+                keys.a.pressed = true;
         break;
         case 'd':
-            console.log('pressed d key');
+            if(!keys.a.pressed)
+                keys.d.pressed = true;
         break;
-
     }
+    console.log(keys);
+});
+window.addEventListener('keyup', (e) => {
+    switch (e.key) {
+        case 'w':
+            keys.w.pressed = false;
+        break;
+        case 's':
+            keys.s.pressed = false;
+        break;
+        case 'a':
+            keys.a.pressed = false;
+        break;
+        case 'd':
+            keys.d.pressed = false;
+        break;
+    }
+    console.log(keys);
 });
