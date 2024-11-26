@@ -66,27 +66,34 @@ animate();
 
 
 
-
+let lastkey = '';
 window.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'w':
-            if(!keys.s.pressed)
+            if(!keys.s.pressed) {
                 keys.w.pressed = true;
+                lastkey = 'w';
+            }
         break;
         case 's':
-            if(!keys.w.pressed)
+            if(!keys.w.pressed) {
                 keys.s.pressed = true;
+                lastkey = 's';
+            }
         break;
         case 'a':
-            if(!keys.d.pressed)
+            if(!keys.d.pressed) {
                 keys.a.pressed = true;
+                lastkey = 'a';
+            }
         break;
         case 'd':
-            if(!keys.a.pressed)
+            if(!keys.a.pressed) {
                 keys.d.pressed = true;
+                lastkey = 'd';
+            }
         break;
     }
-    console.log(keys);
 });
 window.addEventListener('keyup', (e) => {
     switch (e.key) {
@@ -103,5 +110,4 @@ window.addEventListener('keyup', (e) => {
             keys.d.pressed = false;
         break;
     }
-    console.log(keys);
 });
