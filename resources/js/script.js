@@ -1,5 +1,5 @@
-import { Player } from './view/Player.js';
 import { Sprite } from './view/Sprite.js';
+
 import { Boundary } from './data/Boundary.js'
 
 const canvas = document.querySelector('canvas');
@@ -40,22 +40,31 @@ collisionsMap.forEach((row, i) => {
 
 
 
+const playerImage = new Image();
+playerImage.src = './resources/assets/player/walk/down (3x).png';
+const player = new Sprite({
+    image: playerImage, 
+    position: {
+        x: canvas.width/2 - (playerImage.width/10)/2,
+        y: canvas.height/2 - playerImage.height/2
+    }, 
+    frameCount: 10, 
+    velocity: 3, 
+    ctx: ctx
+});
 
-// Ajeitar
-let player = new Player('./resources/assets/player/walk/down (3x).png', 10, 3, ctx, canvas);
 
 const mapImage = new Image();
 mapImage.src = './resources/assets/map.png';
-
-
 const background = new Sprite ({
     position: {
         x: offset.x,
         y: offset.y
     },
-    velocity: 3,
-    image: mapImage 
-}, ctx);
+    frameCount: 1,
+    image: mapImage,
+    ctx: ctx
+});
 
 
 const keys = {
