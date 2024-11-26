@@ -1,4 +1,4 @@
-export class PlayerView {
+export class Player {
     constructor (src, frameCount, velocity, ctx, canvas) {
         this.playerImage = new Image();
         this.playerImage.src = src;

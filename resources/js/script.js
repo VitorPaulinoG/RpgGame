@@ -1,6 +1,6 @@
-import { PlayerView } from './view/PlayerView.js';
+import { Player } from './view/Player.js';
 import { Sprite } from './view/Sprite.js';
-
+import { Boundary } from './data/Boundary.js'
 
 const canvas = document.querySelector('canvas');
 canvas.width = 1024;
@@ -14,29 +14,14 @@ for (let i = 0; i < collisions.length; i+=70) {
     collisionsMap.push(collisions.slice(i, 70 + i));
 }
 
-class Boundary {
-    static width = 36;
-    static height = 36;
-    constructor ({position} ) {
-        this.position = {
-            x: position.x * Boundary.width,
-            y: position.y * Boundary.height
-        },
-        this.width = Boundary.width;
-        this.height = Boundary.height;
-    }
 
-    draw () {
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-        ctx.fillRect(this.position.x, this.position.y, Boundary.width, Boundary.height);
-    }
-}
 
-let boundaries = [];
 const offset = {
     x: -1270,
     y: -850
 }
+
+let boundaries = [];
 collisionsMap.forEach((row, i) => {
     row.forEach((symbol, j) => {
         if (symbol === 1025) {
@@ -47,12 +32,17 @@ collisionsMap.forEach((row, i) => {
                     x: j-35.2,
                     y: i-23.8
                 }
-            }))
+            }, 
+            ctx))
         }
     });
 });
 
-let playerView = new PlayerView('./resources/assets/player/walk/down (3x).png', 10, 3, ctx, canvas);
+
+
+
+// Ajeitar
+let player = new Player('./resources/assets/player/walk/down (3x).png', 10, 3, ctx, canvas);
 
 const mapImage = new Image();
 mapImage.src = './resources/assets/map.png';
@@ -91,49 +81,54 @@ function collision (rectangle1, rectangle2) {
     return (rectangle1.position.x + rectangle1.width >= rectangle2.position.x &&
         rectangle1.position.x <= rectangle2.position.x + rectangle2.width &&
         rectangle1.position.y <= rectangle2.position.y + rectangle2.height &&
-        rectangle1.position.y + rectangle1.height >= rectangle2.position.y)
+        rectangle1.position.y + rectangle1.height >= rectangle2.position.y);
 }
 
 function animate () {
     window.requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+
     background.draw();
+
+
     boundaries.forEach(boundary => {
         boundary.draw();
     });
-    
-    playerView.draw();
+
+
+    player.draw();
 
     let moving = true;
 
     if (keys.w.pressed && lastkey === 'w') {
-        moving = canMove({ x: 0, y: playerView.velocity});
-        
-        if(moving)
-            movables.forEach(movable => {
-                movable.position.y = movable.position.y + playerView.velocity;
-            });    
-    }
-    if (keys.s.pressed && lastkey === 's') {
-        moving = canMove({ x: 0, y: - playerView.velocity});
+        moving = canMove({ x: 0, y: player.velocity});
 
         if(moving)
             movables.forEach(movable => {
-                movable.position.y = movable.position.y - playerView.velocity;
+                movable.position.y = movable.position.y + player.velocity;
+            });    
+    }
+    if (keys.s.pressed && lastkey === 's') {
+        moving = canMove({ x: 0, y: - player.velocity});
+
+        if(moving)
+            movables.forEach(movable => {
+                movable.position.y = movable.position.y - player.velocity;
             });   
     }
     if (keys.a.pressed && lastkey === 'a') {
-        moving = canMove({ x: playerView.velocity, y: 0});
+        moving = canMove({ x: player.velocity, y: 0});
         if(moving)
             movables.forEach(movable => {
-                movable.position.x = movable.position.x + playerView.velocity;
+                movable.position.x = movable.position.x + player.velocity;
             });   
     }
     if (keys.d.pressed && lastkey === 'd') {
-        moving = canMove({ x: - playerView.velocity, y: 0});
+        moving = canMove({ x: - player.velocity, y: 0});
         if(moving)
             movables.forEach(movable => {
-                movable.position.x = movable.position.x - playerView.velocity;
+                movable.position.x = movable.position.x - player.velocity;
             });   
     }
 
@@ -143,7 +138,7 @@ animate();
 function canMove (position) {
     for (let i = 0; i < boundaries.length; i++) {
         const boundary = boundaries[i];
-        if(collision(playerView, {
+        if(collision(player, {
             ...boundary, position: {
                 x: boundary.position.x + position.x,
                 y: boundary.position.y + position.y
