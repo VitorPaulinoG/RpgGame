@@ -107,77 +107,30 @@ function animate () {
     let moving = true;
 
     if (keys.w.pressed && lastkey === 'w') {
-        for (let i = 0; i < boundaries.length; i++) {
-            const boundary = boundaries[i];
-            if(collision(playerView, {
-                ...boundary, position: {
-                    x: boundary.position.x,
-                    y: boundary.position.y + playerView.velocity
-                } 
-            })) {
-                moving = false;
-                break;
-            }
-
-        }
-
+        moving = canMove({ x: 0, y: playerView.velocity});
+        
         if(moving)
             movables.forEach(movable => {
                 movable.position.y = movable.position.y + playerView.velocity;
             });    
     }
     if (keys.s.pressed && lastkey === 's') {
-        for (let i = 0; i < boundaries.length; i++) {
-            const boundary = boundaries[i];
-            if(collision(playerView, {
-                ...boundary, position: {
-                    x: boundary.position.x,
-                    y: boundary.position.y - playerView.velocity
-                } 
-            })) {
-                moving = false;
-                break;
-            }
+        moving = canMove({ x: 0, y: - playerView.velocity});
 
-        }
         if(moving)
             movables.forEach(movable => {
                 movable.position.y = movable.position.y - playerView.velocity;
             });   
     }
     if (keys.a.pressed && lastkey === 'a') {
-        for (let i = 0; i < boundaries.length; i++) {
-            const boundary = boundaries[i];
-            if(collision(playerView, {
-                ...boundary, position: {
-                    x: boundary.position.x + playerView.velocity,
-                    y: boundary.position.y 
-                } 
-            })) {
-                moving = false;
-                break;
-            }
-
-        }
+        moving = canMove({ x: playerView.velocity, y: 0});
         if(moving)
             movables.forEach(movable => {
                 movable.position.x = movable.position.x + playerView.velocity;
             });   
     }
     if (keys.d.pressed && lastkey === 'd') {
-        for (let i = 0; i < boundaries.length; i++) {
-            const boundary = boundaries[i];
-            if(collision(playerView, {
-                ...boundary, position: {
-                    x: boundary.position.x - playerView.velocity,
-                    y: boundary.position.y 
-                } 
-            })) {
-                moving = false;
-                break;
-            }
-
-        }
+        moving = canMove({ x: - playerView.velocity, y: 0});
         if(moving)
             movables.forEach(movable => {
                 movable.position.x = movable.position.x - playerView.velocity;
@@ -187,7 +140,21 @@ function animate () {
 }
 animate();
 
+function canMove (position) {
+    for (let i = 0; i < boundaries.length; i++) {
+        const boundary = boundaries[i];
+        if(collision(playerView, {
+            ...boundary, position: {
+                x: boundary.position.x + position.x,
+                y: boundary.position.y + position.y
+            }
+        })) {
+            return false;
+        }
 
+    }
+    return true;
+}
 
 
 
