@@ -10,10 +10,7 @@ canvas.height = 576;
 const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false; // Não embaça/borra os pixels 
 
-// const playerImage = new Image();
-// playerImage.src = './resources/assets/player/walk/down (3x).png';
-
-let playerView = new PlayerView('./resources/assets/player/walk/down (3x).png', 10);
+let playerView = new PlayerView('./resources/assets/player/walk/down (3x).png', 10, ctx, canvas);
 
 const mapImage = new Image();
 mapImage.src = './resources/assets/map.png';
@@ -27,10 +24,15 @@ const background = new Sprite ({
 }, ctx);
 
 
+
+
+
+
+
 function animate () {
     window.requestAnimationFrame(animate);
     background.draw();
-    playerView.draw(ctx, canvas);
+    playerView.draw();
 }
 animate();
 
