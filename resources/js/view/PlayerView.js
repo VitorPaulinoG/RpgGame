@@ -1,27 +1,35 @@
 export class PlayerView {
-    constructor (src, frameCount, ctx, canvas) {
+    constructor (src, frameCount, velocity, ctx, canvas) {
         this.playerImage = new Image();
         this.playerImage.src = src;
-        this.frameCount = frameCount;
         this.ctx = ctx;
         this.canvas = canvas;
+        this.frameCount = frameCount;
+        this.velocity = velocity;
+
+        this.width = this.playerImage.width/this.frameCount;
+        this.height = this.playerImage.height;
+
+        this.position = {
+            x: this.canvas.width/2 - (this.width)/2,
+            y: this.canvas.height/2 - this.height/2
+        };
+        
+        
+        
 
     }
 
     draw () {
-        let frameWidth = this.playerImage.width/this.frameCount;
-        let frameHeight = this.playerImage.height;
-
-
         this.ctx.drawImage(this.playerImage, 
             0,
             0,
-            frameWidth,
-            frameHeight,
-            this.canvas.width/2 - (frameWidth)/2, 
-            this.canvas.height/2 - frameHeight/2, 
-            frameWidth, 
-            frameHeight
+            this.width,
+            this.height,
+            this.position.x, 
+            this.position.y, 
+            this.width, 
+            this.height
         );
     }
     
