@@ -5,10 +5,17 @@ import { Sprite } from './view/Sprite.js';
 const canvas = document.querySelector('canvas');
 canvas.width = 1024;
 canvas.height = 576;
-
-
 const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false; // Não embaça/borra os pixels 
+
+
+const collisionsMap = [];
+
+for (let i = 0; i < collisions.length; i+=70) {
+    collisionsMap.push(collisions.slice(i, 70 + i));
+}
+
+
 
 let playerView = new PlayerView('./resources/assets/player/walk/down (3x).png', 10, ctx, canvas);
 
@@ -48,16 +55,16 @@ function animate () {
     background.draw();
     playerView.draw();
 
-    if (keys.w.pressed) {
+    if (keys.w.pressed && lastkey === 'w') {
         background.position.y = background.position.y + background.velocity;
     }
-    if (keys.s.pressed) {
+    if (keys.s.pressed && lastkey === 's') {
         background.position.y = background.position.y - background.velocity;
     }
-    if (keys.a.pressed) {
+    if (keys.a.pressed && lastkey === 'a') {
         background.position.x = background.position.x + background.velocity;
     }
-    if (keys.d.pressed) {
+    if (keys.d.pressed && lastkey === 'd') {
         background.position.x = background.position.x - background.velocity;
     }
 }
