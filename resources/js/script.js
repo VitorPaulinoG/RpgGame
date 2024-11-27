@@ -341,7 +341,8 @@ addEventListener('click', () => {
    }
 
 if(!audio.Map.playing()){
-   audio.Map.play();
+    audio.Map.loop(true)
+    audio.Map.play();
 }else{
     console.log("Audio already playing");
 }
