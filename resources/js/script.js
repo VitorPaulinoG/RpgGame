@@ -325,10 +325,9 @@ window.addEventListener('keyup', (e) => {
             player.animation.isPlaying = false;
         break;
     }
-<<<<<<< Updated upstream
+
 });
-=======
-});
+
 
 let audioInitialized = false;
 addEventListener('click', () => {
@@ -355,4 +354,4 @@ audio.InitBattle.play();
 battle.initiated = true
 //Add configuração de gameOver
 audio.GameOver.play();
->>>>>>> Stashed changes
+
