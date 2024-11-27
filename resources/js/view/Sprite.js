@@ -2,15 +2,10 @@ export class Sprite {
     constructor ({animation, position, velocity, ctx}) {
         this.ctx = ctx;
         this.animation = animation;
-        
-
-
-
         this.velocity = velocity;
         this.width = this.animation.image.width;
         this.height = this.animation.image.height
         this.position = position;
-        
 
     }
 

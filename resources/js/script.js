@@ -80,17 +80,6 @@ const player = new Sprite({
     ctx: ctx
 });
 
-// const player = new Sprite({
-//     image: playerImage, 
-//     position: {
-//         x: canvas.width/2 - (playerImage.width/10)/2,
-//         y: canvas.height/2 - playerImage.height/2
-//     }, 
-//     frameCount: 10, 
-//     frameRate: 5,
-//     velocity: 3, 
-//     ctx: ctx
-// });
 
 
 const mapImage = new Image();
@@ -118,16 +107,6 @@ const background = new Sprite({
     ctx: ctx
 });
 
-// const background = new Sprite ({
-//     position: {
-//         x: offset.x,
-//         y: offset.y
-//     },
-//     frameCount: 1,
-//     image: mapImage,
-//     ctx: ctx
-// });
-
 const foregroundImage = new Image();
 foregroundImage.src = './resources/assets/map-foreground.png';
 const foreground = new Sprite({
@@ -152,17 +131,6 @@ const foreground = new Sprite({
     ctx: ctx
 });
 
-// const foregroundImage = new Image();
-// foregroundImage.src = './resources/assets/map-foreground.png';
-// const foreground = new Sprite ({
-//     position: {
-//         x: offset.x,
-//         y: offset.y
-//     },
-//     frameCount: 1,
-//     image: foregroundImage,
-//     ctx: ctx,
-// });
 
 
 const keys = {
