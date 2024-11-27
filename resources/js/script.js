@@ -1,4 +1,5 @@
 import { Sprite } from './view/Sprite.js';
+import { Animation } from './view/Animation.js';
 
 import { Boundary } from './data/Boundary.js'
 
@@ -42,41 +43,126 @@ collisionsMap.forEach((row, i) => {
 
 const playerImage = new Image();
 playerImage.src = './resources/assets/player/walk/down (3x).png';
+
 const player = new Sprite({
-    image: playerImage, 
+    animation: new Animation ({
+        hasAnimations: true,
+        sources: {
+            idle: {
+                paths: {
+                    0: './resources/assets/player/idle/down (3x).png',
+                    1: './resources/assets/player/idle/left (3x).png',
+                    2: './resources/assets/player/idle/up (3x).png',
+                    3: './resources/assets/player/idle/right (3x).png',
+                },
+                currentPath: 0,
+                frameCount: 1
+            },
+            walk: {
+                paths: {
+                    0: './resources/assets/player/walk/down (3x).png',
+                    1: './resources/assets/player/walk/left (3x).png',
+                    2: './resources/assets/player/walk/up (3x).png',
+                    3: './resources/assets/player/walk/right (3x).png',
+                },
+                frameCount: 10
+            }
+        },
+        image: playerImage,
+        isPlaying: true,
+        frameRate: 5
+    }),
     position: {
-        x: canvas.width/2 - (playerImage.width/10)/2,
+        x: canvas.width/2 - playerImage.width/2, 
         y: canvas.height/2 - playerImage.height/2
-    }, 
-    frameCount: 10, 
+    },
     velocity: 3, 
     ctx: ctx
 });
 
+// const player = new Sprite({
+//     image: playerImage, 
+//     position: {
+//         x: canvas.width/2 - (playerImage.width/10)/2,
+//         y: canvas.height/2 - playerImage.height/2
+//     }, 
+//     frameCount: 10, 
+//     frameRate: 5,
+//     velocity: 3, 
+//     ctx: ctx
+// });
+
 
 const mapImage = new Image();
 mapImage.src = './resources/assets/map.png';
-const background = new Sprite ({
+
+const background = new Sprite({
+    animation: new Animation ({
+        hasAnimations: false,
+        sources: {
+            idle: {
+                paths: {
+                    0: './resources/assets/map.png'
+                },
+                currentPath: 0,
+                frameCount: 1
+            },
+        },
+        image: mapImage,
+        isPlaying: false
+    }),
     position: {
         x: offset.x,
         y: offset.y
     },
-    frameCount: 1,
-    image: mapImage,
     ctx: ctx
 });
 
+// const background = new Sprite ({
+//     position: {
+//         x: offset.x,
+//         y: offset.y
+//     },
+//     frameCount: 1,
+//     image: mapImage,
+//     ctx: ctx
+// });
+
 const foregroundImage = new Image();
 foregroundImage.src = './resources/assets/map-foreground.png';
-const foreground = new Sprite ({
+const foreground = new Sprite({
+    animation: new Animation ({
+        hasAnimations: false,
+        sources: {
+            idle: {
+                paths: {
+                    0: './resources/assets/map-foreground.png'
+                },
+                currentPath: 0,
+                frameCount: 1
+            },
+        },
+        image: foregroundImage,
+        isPlaying: false
+    }),
     position: {
         x: offset.x,
         y: offset.y
     },
-    frameCount: 1,
-    image: foregroundImage,
-    ctx: ctx,
+    ctx: ctx
 });
+
+// const foregroundImage = new Image();
+// foregroundImage.src = './resources/assets/map-foreground.png';
+// const foreground = new Sprite ({
+//     position: {
+//         x: offset.x,
+//         y: offset.y
+//     },
+//     frameCount: 1,
+//     image: foregroundImage,
+//     ctx: ctx,
+// });
 
 
 const keys = {
@@ -104,7 +190,7 @@ function collision (rectangle1, rectangle2) {
         rectangle1.position.y <= rectangle2.position.y + rectangle2.height &&
         rectangle1.position.y + rectangle1.height >= rectangle2.position.y);
 }
-
+let currentAnimationNumber = 0;
 function animate () {
     window.requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -120,10 +206,23 @@ function animate () {
 
     player.draw();
     foreground.draw();
-
+    
     let moving = true;
-
+    if(!player.animation.isPlaying) {
+        player.animation.setAnimation('idle', currentAnimationNumber);
+    }
+    player.animation.isPlaying = false;
     if (keys.w.pressed && lastkey === 'w') {
+        player.animation.isPlaying = true;
+        player.animation.setAnimation('walk', 2);
+        currentAnimationNumber = 2;
+        
+        player.position = {
+            x: canvas.width/2 - (playerImage.width/10)/2,
+            y: canvas.height/2 - playerImage.height/2
+        }
+        
+        
         moving = canMove({ x: 0, y: player.velocity});
 
         if(moving)
@@ -132,6 +231,16 @@ function animate () {
             });    
     }
     if (keys.s.pressed && lastkey === 's') {
+        player.animation.isPlaying = true;
+        player.animation.setAnimation('walk', 0);
+        currentAnimationNumber = 0;
+
+        player.position = {
+            x: canvas.width/2 - (playerImage.width/10)/2,
+            y: canvas.height/2 - playerImage.height/2
+        }
+       
+        
         moving = canMove({ x: 0, y: - player.velocity});
 
         if(moving)
@@ -140,6 +249,16 @@ function animate () {
             });   
     }
     if (keys.a.pressed && lastkey === 'a') {
+        player.animation.isPlaying = true;
+        player.animation.setAnimation('walk', 1);
+        currentAnimationNumber = 1;
+
+        player.position = {
+            x: canvas.width/2 - (playerImage.width/10)/2,
+            y: canvas.height/2 - playerImage.height/2
+        }
+
+
         moving = canMove({ x: player.velocity, y: 0});
         if(moving)
             movables.forEach(movable => {
@@ -147,12 +266,24 @@ function animate () {
             });   
     }
     if (keys.d.pressed && lastkey === 'd') {
+        player.animation.isPlaying = true;
+        player.animation.setAnimation('walk', 3);
+        currentAnimationNumber = 3;
+
+        player.position = {
+            x: canvas.width/2 - (playerImage.width/10)/2,
+            y: canvas.height/2 - playerImage.height/2
+        }
+
+
         moving = canMove({ x: - player.velocity, y: 0});
         if(moving)
             movables.forEach(movable => {
                 movable.position.x = movable.position.x - player.velocity;
             });   
     }
+
+    
 
 }
 animate();
@@ -211,15 +342,19 @@ window.addEventListener('keyup', (e) => {
     switch (e.key) {
         case 'w':
             keys.w.pressed = false;
+            player.animation.isPlaying = false;
         break;
         case 's':
             keys.s.pressed = false;
+            player.animation.isPlaying = false;
         break;
         case 'a':
             keys.a.pressed = false;
+            player.animation.isPlaying = false;
         break;
         case 'd':
             keys.d.pressed = false;
+            player.animation.isPlaying = false;
         break;
     }
 });
