@@ -325,4 +325,34 @@ window.addEventListener('keyup', (e) => {
             player.animation.isPlaying = false;
         break;
     }
+
 });
+
+
+let audioInitialized = false;
+addEventListener('click', () => {
+    if(!audioInitialized){
+        if(Howler.ctx.state === 'suspended'){
+            Howler.ctx.resume().then(() => {
+                console.log("AudoContext resumed");
+            });
+        }
+        audioInitialized = true;
+   }
+
+if(!audio.Map.playing()){
+    audio.Map.loop(true)
+    audio.Map.play();
+}else{
+    console.log("Audio already playing");
+}
+});
+
+
+//Add batalha com inimigo aqui
+audio.Map.stop();
+audio.InitBattle.play();
+battle.initiated = true
+//Add configuração de gameOver
+audio.GameOver.play();
+
