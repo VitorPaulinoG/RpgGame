@@ -10,6 +10,37 @@ const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false; // Não embaça/borra os pixels 
 
 
+// Audios
+let audioInitialized = false;
+window.addEventListener('load', () => {
+    if(!audioInitialized){
+        if(Howler.ctx.state === 'suspended'){
+            Howler.ctx.resume().then(() => {
+                console.log("AudoContext resumed");
+            });
+        }
+        audioInitialized = true;
+   }
+
+if(!audio.Map.playing()){
+    audio.Map.loop(true)
+    audio.Map.play();
+}else{
+    console.log("Audio already playing");
+}
+});
+
+
+// //Add batalha com inimigo aqui
+// audio.Map.stop();
+// audio.InitBattle.play();
+// battle.initiated = true
+// //Add configuração de gameOver
+// audio.GameOver.play();
+
+
+
+
 const collisionsMap = [];
 for (let i = 0; i < collisions.length; i+=70) {
     collisionsMap.push(collisions.slice(i, 70 + i));
@@ -463,7 +494,6 @@ function canMove (position) {
 
 
 // KEYMAPPING
-
 let lastkey = '';
 window.addEventListener('keydown', (e) => {
     switch (e.key) {
@@ -523,30 +553,4 @@ window.addEventListener('keyup', (e) => {
 });
 
 
-let audioInitialized = false;
-window.addEventListener('load', () => {
-    if(!audioInitialized){
-        if(Howler.ctx.state === 'suspended'){
-            Howler.ctx.resume().then(() => {
-                console.log("AudoContext resumed");
-            });
-        }
-        audioInitialized = true;
-   }
-
-if(!audio.Map.playing()){
-    audio.Map.loop(true)
-    audio.Map.play();
-}else{
-    console.log("Audio already playing");
-}
-});
-
-
-// //Add batalha com inimigo aqui
-// audio.Map.stop();
-// audio.InitBattle.play();
-// battle.initiated = true
-// //Add configuração de gameOver
-// audio.GameOver.play();
 
