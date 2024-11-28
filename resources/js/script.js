@@ -337,7 +337,9 @@ function animate () {
         atackEffect.draw();
     }
     foreground.draw();
-
+/// REmover
+    // ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    // ctx.fillRect(player.position.x + 20, player.position.y + 40, player.width-40, player.height - 40)
 
 
     let moving = true;
@@ -379,16 +381,11 @@ function animate () {
             break;
         }
 
-
-
-
-
         setTimeout(() => {
             player.animation.isPlaying = false;
             player.animation.setAnimation('idle', currentAnimationNumber);
             atackEffect.opacity = 0;
         }, player.animation.frameRate * player.animation.currentSource.frameCount * 16.67);
-        
         
         moving = false;
     }
@@ -477,7 +474,16 @@ animate();
 function canMove (position) {
     for (let i = 0; i < boundaries.length; i++) {
         const boundary = boundaries[i];
-        if(collision(player, {
+
+        if(collision(
+            {
+                position: {
+                    x: player.position.x + 20,
+                    y: player.position.y + 40
+                },
+                width: player.width - 40,
+                height: player.height - 40
+            }, {
             ...boundary, position: {
                 x: boundary.position.x + position.x,
                 y: boundary.position.y + position.y
