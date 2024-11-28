@@ -73,6 +73,7 @@ collisionsMap.forEach((row, i) => {
 
 const playerImage = new Image();
 playerImage.src = './resources/assets/player/idle/down (3x).png';
+let playerHp = 3;
 const player = new Sprite({
     animation: new Animation ({
         hasAnimations: true,
@@ -277,8 +278,34 @@ const foreground = new Sprite({
     opacity: 1
 });
 
-
-
+const hudImage = new Image();
+hudImage.src = './resources/assets/hud/hp.png';
+const hud = new Sprite({
+    animation: new Animation({
+        hasAnimations: false,
+        sources: {
+            idle: {
+                paths: {
+                    0: './resources/assets/hud/hp.png',
+                    1: './resources/assets/hud/hp.png',
+                    2: './resources/assets/hud/hp.png',
+                    3: './resources/assets/hud/hp.png',
+                },
+                frameCount: 4
+             },
+        },  
+        frameRate: 5,
+        image: hudImage,
+        isPlaying: false
+    }), 
+    position: {
+        x: 0,
+        y: 0
+    },
+    width: hudImage.width/4,
+    ctx: ctx,
+    opacity: 1  
+});
 
 const keys = {
     w: {
@@ -337,6 +364,7 @@ function animate () {
         atackEffect.draw();
     }
     foreground.draw();
+    hud.draw();
 /// REmover
     // ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
     // ctx.fillRect(player.position.x + 20, player.position.y + 40, player.width-40, player.height - 40)
@@ -557,6 +585,7 @@ window.addEventListener('keyup', (e) => {
     }
 
 });
+
 
 
 

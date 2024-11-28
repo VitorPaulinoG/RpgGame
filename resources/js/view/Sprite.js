@@ -1,10 +1,10 @@
 export class Sprite {
-    constructor ({animation, position, velocity, ctx, opacity}) {
+    constructor ({animation, position, velocity, ctx, width, height, opacity}) {
         this.ctx = ctx;
         this.animation = animation;
         this.velocity = velocity;
-        this.width = this.animation.image.width;
-        this.height = this.animation.image.height;
+        this.width = width ?? this.animation.image.width;
+        this.height = height ?? this.animation.image.height;
         this.position = position;
         this.opacity = opacity;
 
