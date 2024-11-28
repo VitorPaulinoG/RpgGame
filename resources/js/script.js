@@ -40,8 +40,8 @@ collisionsMap.forEach((row, i) => {
 });
 
 
-
 const playerImage = new Image();
+playerImage.src = './resources/assets/player/idle/down (3x).png';
 const player = new Sprite({
     animation: new Animation ({
         hasAnimations: true,
@@ -89,6 +89,7 @@ const player = new Sprite({
 });
 
 const atackEffectImage = new Image();
+atackEffectImage.src = './resources/assets/player/atack-effect/down.png';
 const atackEffect = new Sprite({
     animation: new Animation({
         hasAnimations: true,
@@ -118,8 +119,85 @@ const atackEffect = new Sprite({
     
 });
 
+const ancientImage = new Image();
+ancientImage.src = './resources/assets/npc/ancient/ancient.png';
+const ancient = new Sprite({
+    animation: new Animation ({
+        hasAnimations: true,
+        sources: {
+            idle: {
+                paths: {
+                    0: './resources/assets/npc/ancient/ancient.png'
+                },
+                frameCount: 1
+            }
+        },
+        image: ancientImage,
+        isPlaying: false,
+        frameRate: 5
+    }),
+    position: {
+        x: 1000, 
+        y: 50
+    },
+    opacity: 1,
+    ctx: ctx
+});
+
+const masterImage = new Image();
+masterImage.src = './resources/assets/npc/master/master.png';
+const master = new Sprite({
+    animation: new Animation ({
+        hasAnimations: true,
+        sources: {
+            idle: {
+                paths: {
+                    0: './resources/assets/npc/master/master.png'
+                },
+                frameCount: 1
+            }
+        },
+        image: masterImage,
+        isPlaying: false,
+        frameRate: 5
+    }),
+    position: {
+        x: 250, 
+        y: -400
+    },
+    opacity: 1,
+    ctx: ctx
+});
+
+
+const farmerImage = new Image();
+farmerImage.src = './resources/assets/npc/farmer/farmer.png';
+const farmer = new Sprite({
+    animation: new Animation ({
+        hasAnimations: true,
+        sources: {
+            idle: {
+                paths: {
+                    0: './resources/assets/npc/farmer/farmer.png'
+                },
+                frameCount: 1
+            }
+        },
+        image: farmerImage,
+        isPlaying: false,
+        frameRate: 5
+    }),
+    position: {
+        x: -1000, 
+        y: -300
+    },
+    opacity: 1,
+    ctx: ctx
+});
+
 
 const backgroundImage = new Image();
+backgroundImage.src = './resources/assets/map.png';
 const background = new Sprite({
     animation: new Animation ({
         hasAnimations: false,
@@ -144,6 +222,7 @@ const background = new Sprite({
 });
 
 const foregroundImage = new Image();
+foregroundImage.src = './resources/assets/map-foreground.png';
 const foreground = new Sprite({
     animation: new Animation ({
         hasAnimations: false,
@@ -169,6 +248,7 @@ const foreground = new Sprite({
 
 
 
+
 const keys = {
     w: {
         pressed: false
@@ -189,7 +269,7 @@ const keys = {
 
 
 
-const movables = [background, ...boundaries, foreground];
+const movables = [background, ...boundaries, foreground, ancient, master, farmer];
 
 function collision (rectangle1, rectangle2) {
     return (rectangle1.position.x + rectangle1.width >= rectangle2.position.x &&
@@ -198,6 +278,10 @@ function collision (rectangle1, rectangle2) {
         rectangle1.position.y + rectangle1.height >= rectangle2.position.y);
 }
 let currentAnimationNumber = 0;
+
+
+
+
 function animate () {
     window.requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -210,6 +294,10 @@ function animate () {
         boundary.draw();
     });
 
+    ancient.draw(); 
+    master.draw();
+    farmer.draw();
+    
     if(currentAnimationNumber === 2) {
         atackEffect.draw();
         player.draw();
@@ -352,6 +440,7 @@ function animate () {
     }
 
 }
+
 animate();
 
 function canMove (position) {
