@@ -24,10 +24,7 @@ export class Animation {
     }
 
     processAnimation() {
-        if (!this.hasAnimations)
-            return;            
-    
-        if (!this.isPlaying) 
+        if (!this.hasAnimations || !this.isPlaying)
             return;            
 
         if(this.currentSource.frameCount > 1) {
@@ -35,8 +32,12 @@ export class Animation {
         }
 
         if(this.frameElapsed % this.frameRate === 0 && this.frameElapsed != 0) {
-            if(this.frameNumber < this.currentSource.frameCount - 1) this.frameNumber++;
-            else this.frameNumber = 0;
+            if(this.frameNumber < this.currentSource.frameCount - 1) 
+                this.frameNumber++;
+            else if (this.currentSource === this.sources['melee']) 
+                this.isPlaying = false; 
+            else 
+                this.frameNumber = 0;
         }
     }
 }

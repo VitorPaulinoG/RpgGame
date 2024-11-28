@@ -42,8 +42,6 @@ collisionsMap.forEach((row, i) => {
 
 
 const playerImage = new Image();
-playerImage.src = './resources/assets/player/walk/down (3x).png';
-
 const player = new Sprite({
     animation: new Animation ({
         hasAnimations: true,
@@ -66,25 +64,62 @@ const player = new Sprite({
                     3: './resources/assets/player/walk/right (3x).png',
                 },
                 frameCount: 10
+            },
+            melee: {
+                paths: {
+                    0: './resources/assets/player/melee/down (3x).png',
+                    1: './resources/assets/player/melee/left (3x).png',
+                    2: './resources/assets/player/melee/up (3x).png',
+                    3: './resources/assets/player/melee/right (3x).png',
+                },
+                frameCount: 4
             }
         },
         image: playerImage,
-        isPlaying: true,
+        isPlaying: false,
         frameRate: 5
     }),
     position: {
         x: canvas.width/2 - playerImage.width/2, 
         y: canvas.height/2 - playerImage.height/2
     },
-    velocity: 3, 
+    velocity: 3,
+    opacity: 1,
     ctx: ctx
 });
 
+const atackEffectImage = new Image();
+const atackEffect = new Sprite({
+    animation: new Animation({
+        hasAnimations: true,
+        sources: {
+            idle: {
+                paths: {
+                    0: './resources/assets/player/atack-effect/down.png',
+                    1: './resources/assets/player/atack-effect/left.png',
+                    2: './resources/assets/player/atack-effect/up.png',
+                    3: './resources/assets/player/atack-effect/right.png',
+                },
+                currentPath: 0,
+                frameCount: 1
+            },
+        },
+        isPlaying: true,
+        image: atackEffectImage,
+        frameRate: 5,
+        
+    }),
+    ctx: ctx,
+    opacity: 0,
+    position: {
+        x: player.position.x - 20,
+        y: player.position.y + 35
+    }
+    
+});
 
 
-const mapImage = new Image();
-mapImage.src = './resources/assets/map.png';
-
+const backgroundImage = new Image();
 const background = new Sprite({
     animation: new Animation ({
         hasAnimations: false,
@@ -97,18 +132,18 @@ const background = new Sprite({
                 frameCount: 1
             },
         },
-        image: mapImage,
+        image: backgroundImage,
         isPlaying: false
     }),
     position: {
         x: offset.x,
         y: offset.y
     },
-    ctx: ctx
+    ctx: ctx,
+    opacity: 1
 });
 
 const foregroundImage = new Image();
-foregroundImage.src = './resources/assets/map-foreground.png';
 const foreground = new Sprite({
     animation: new Animation ({
         hasAnimations: false,
@@ -128,7 +163,8 @@ const foreground = new Sprite({
         x: offset.x,
         y: offset.y
     },
-    ctx: ctx
+    ctx: ctx,
+    opacity: 1
 });
 
 
@@ -144,6 +180,9 @@ const keys = {
         pressed: false
     },
     d: {
+        pressed: false
+    },
+    q: {
         pressed: false
     }
 }
@@ -171,87 +210,146 @@ function animate () {
         boundary.draw();
     });
 
-
-    player.draw();
+    if(currentAnimationNumber === 2) {
+        atackEffect.draw();
+        player.draw();
+    } else {
+        player.draw();
+        atackEffect.draw();
+    }
     foreground.draw();
-    
+
+
+
     let moving = true;
     if(!player.animation.isPlaying) {
         player.animation.setAnimation('idle', currentAnimationNumber);
     }
-    player.animation.isPlaying = false;
-    if (keys.w.pressed && lastkey === 'w') {
+
+    if (keys.q.pressed && !player.animation.isPlaying) {
         player.animation.isPlaying = true;
-        player.animation.setAnimation('walk', 2);
-        currentAnimationNumber = 2;
+        player.animation.setAnimation('melee', currentAnimationNumber);
         
-        player.position = {
-            x: canvas.width/2 - (playerImage.width/10)/2,
-            y: canvas.height/2 - playerImage.height/2
-        }
-        
-        
-        moving = canMove({ x: 0, y: player.velocity});
+        atackEffect.animation.setAnimation('idle', currentAnimationNumber);
+        atackEffect.opacity = 1;
 
-        if(moving)
-            movables.forEach(movable => {
-                movable.position.y = movable.position.y + player.velocity;
-            });    
-    }
-    if (keys.s.pressed && lastkey === 's') {
-        player.animation.isPlaying = true;
-        player.animation.setAnimation('walk', 0);
-        currentAnimationNumber = 0;
-
-        player.position = {
-            x: canvas.width/2 - (playerImage.width/10)/2,
-            y: canvas.height/2 - playerImage.height/2
-        }
-       
-        
-        moving = canMove({ x: 0, y: - player.velocity});
-
-        if(moving)
-            movables.forEach(movable => {
-                movable.position.y = movable.position.y - player.velocity;
-            });   
-    }
-    if (keys.a.pressed && lastkey === 'a') {
-        player.animation.isPlaying = true;
-        player.animation.setAnimation('walk', 1);
-        currentAnimationNumber = 1;
-
-        player.position = {
-            x: canvas.width/2 - (playerImage.width/10)/2,
-            y: canvas.height/2 - playerImage.height/2
+        switch(currentAnimationNumber) {
+            case 0:
+                atackEffect.position = {
+                    x: player.position.x - 18,
+                    y: player.position.y + 35
+                };
+            break;
+            case 1: 
+                atackEffect.position = {
+                    x: player.position.x - 57,
+                    y: player.position.y - 11
+                };
+            break;
+            case 2: 
+                atackEffect.position = {
+                    x: player.position.x ,
+                    y: player.position.y - 40
+                };
+            break;
+            case 3: 
+                atackEffect.position = {
+                    x: player.position.x + 37,
+                    y: player.position.y - 11
+                };
+            break;
         }
 
 
-        moving = canMove({ x: player.velocity, y: 0});
-        if(moving)
-            movables.forEach(movable => {
-                movable.position.x = movable.position.x + player.velocity;
-            });   
+
+
+
+        setTimeout(() => {
+            player.animation.isPlaying = false;
+            player.animation.setAnimation('idle', currentAnimationNumber);
+            atackEffect.opacity = 0;
+        }, player.animation.frameRate * player.animation.currentSource.frameCount * 16.67);
+        
+        
+        moving = false;
     }
-    if (keys.d.pressed && lastkey === 'd') {
-        player.animation.isPlaying = true;
-        player.animation.setAnimation('walk', 3);
-        currentAnimationNumber = 3;
-
-        player.position = {
-            x: canvas.width/2 - (playerImage.width/10)/2,
-            y: canvas.height/2 - playerImage.height/2
-        }
-
-
-        moving = canMove({ x: - player.velocity, y: 0});
-        if(moving)
-            movables.forEach(movable => {
-                movable.position.x = movable.position.x - player.velocity;
-            });   
-    }
-
     
+    if (player.animation.currentSource !== player.animation.sources.melee) {
+     
+        if (keys.w.pressed && lastkey === 'w') {
+            player.animation.isPlaying = true;
+            player.animation.setAnimation('walk', 2);
+            currentAnimationNumber = 2;
+            
+            player.position = {
+                x: canvas.width/2 - (playerImage.width/10)/2,
+                y: canvas.height/2 - playerImage.height/2
+            }
+            
+            
+            moving = canMove({ x: 0, y: player.velocity});
+
+            if(moving)
+                movables.forEach(movable => {
+                    movable.position.y = movable.position.y + player.velocity;
+                });    
+        }
+        if (keys.s.pressed && lastkey === 's') {
+            player.animation.isPlaying = true;
+            player.animation.setAnimation('walk', 0);
+            currentAnimationNumber = 0;
+
+            player.position = {
+                x: canvas.width/2 - (playerImage.width/10)/2,
+                y: canvas.height/2 - playerImage.height/2
+            }
+        
+            
+            moving = canMove({ x: 0, y: - player.velocity});
+
+            if(moving)
+                movables.forEach(movable => {
+                    movable.position.y = movable.position.y - player.velocity;
+                });   
+        }
+        if (keys.a.pressed && lastkey === 'a') {
+            player.animation.isPlaying = true;
+            player.animation.setAnimation('walk', 1);
+            currentAnimationNumber = 1;
+
+            player.position = {
+                x: canvas.width/2 - (playerImage.width/10)/2,
+                y: canvas.height/2 - playerImage.height/2
+            }
+
+
+            moving = canMove({ x: player.velocity, y: 0});
+            if(moving)
+                movables.forEach(movable => {
+                    movable.position.x = movable.position.x + player.velocity;
+                });   
+        }
+        if (keys.d.pressed && lastkey === 'd') {
+            player.animation.isPlaying = true;
+            player.animation.setAnimation('walk', 3);
+            currentAnimationNumber = 3;
+
+            player.position = {
+                x: canvas.width/2 - (playerImage.width/10)/2,
+                y: canvas.height/2 - playerImage.height/2
+            }
+
+
+            moving = canMove({ x: - player.velocity, y: 0});
+            if(moving)
+                movables.forEach(movable => {
+                    movable.position.x = movable.position.x - player.velocity;
+                });   
+        }
+    }
+    if (keys.q.pressed && player.animation.isPlaying) {
+        keys.q.pressed = false; 
+    }
 
 }
 animate();
@@ -304,6 +402,10 @@ window.addEventListener('keydown', (e) => {
                 lastkey = 'd';
             }
         break;
+        case 'q':
+            keys.q.pressed = true;
+            break;
+
     }
 });
 window.addEventListener('keyup', (e) => {
@@ -324,13 +426,16 @@ window.addEventListener('keyup', (e) => {
             keys.d.pressed = false;
             player.animation.isPlaying = false;
         break;
+        case 'q':
+            keys.q.pressed = false;
+            break;
     }
 
 });
 
 
 let audioInitialized = false;
-addEventListener('click', () => {
+window.addEventListener('load', () => {
     if(!audioInitialized){
         if(Howler.ctx.state === 'suspended'){
             Howler.ctx.resume().then(() => {
@@ -349,10 +454,10 @@ if(!audio.Map.playing()){
 });
 
 
-//Add batalha com inimigo aqui
-audio.Map.stop();
-audio.InitBattle.play();
-battle.initiated = true
-//Add configuração de gameOver
-audio.GameOver.play();
+// //Add batalha com inimigo aqui
+// audio.Map.stop();
+// audio.InitBattle.play();
+// battle.initiated = true
+// //Add configuração de gameOver
+// audio.GameOver.play();
 

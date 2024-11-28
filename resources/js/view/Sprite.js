@@ -1,15 +1,17 @@
 export class Sprite {
-    constructor ({animation, position, velocity, ctx}) {
+    constructor ({animation, position, velocity, ctx, opacity}) {
         this.ctx = ctx;
         this.animation = animation;
         this.velocity = velocity;
         this.width = this.animation.image.width;
-        this.height = this.animation.image.height
+        this.height = this.animation.image.height;
         this.position = position;
+        this.opacity = opacity;
 
     }
 
     draw () {
+        this.ctx.globalAlpha = this.opacity;
         this.ctx.drawImage(this.animation.image,
             this.animation.frameNumber * this.width,
             0,
@@ -20,6 +22,7 @@ export class Sprite {
             this.width, 
             this.height
         );
+        this.ctx.globalAlpha = 1;
         this.animation.processAnimation();
 
     }
