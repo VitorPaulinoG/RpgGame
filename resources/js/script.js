@@ -3,7 +3,8 @@ import { Animation } from './view/Animation.js';
 
 import { Boundary } from './data/Boundary.js'
 import { CharacterProperty } from './view/CharacterProperty.js';
-import { Enemy } from './view/Enemy.js';
+import { Enemy, Player } from './view/Enemy.js';
+import { BoxCollider } from './data/BoxCollider.js';
 
 const canvas = document.querySelector('canvas');
 canvas.width = 1024;
@@ -126,7 +127,7 @@ const foreground = new Sprite({
 
 const playerImage = new Image();
 playerImage.src = './resources/assets/player/idle/down (3x).png';
-const player = new Sprite({
+const playerSprite = new Sprite({
     animation: new Animation ({
         hasAnimations: true,
         sources: {
@@ -175,6 +176,18 @@ const playerProperties = new CharacterProperty({
     damage: 1, 
     velocity: 3
 });
+const player = new Player({
+    sprite: playerSprite,
+    properties: playerProperties,
+    collider: new BoxCollider({
+        offset: {
+            x: 25,
+            y: 0
+        },
+        sprite: playerSprite
+    }),
+    boundaries: boundaries
+});
 
 const atackEffectImage = new Image();
 atackEffectImage.src = './resources/assets/player/atack-effect/down.png';
@@ -201,8 +214,8 @@ const atackEffect = new Sprite({
     ctx: ctx,
     opacity: 0,
     position: {
-        x: player.position.x - 20,
-        y: player.position.y + 35
+        x: player.sprite.position.x - 20,
+        y: player.sprite.position.y + 35
     }
     
 });
@@ -210,7 +223,7 @@ const atackEffect = new Sprite({
 
 const fox01Image = new Image();
 fox01Image.src = './resources/assets/enemies/fox/idle/down.png';
-const fox01 = new Sprite ({
+const fox01Sprite = new Sprite ({
     animation: new Animation({
         hasAnimations: true,
         sources: {
@@ -232,12 +245,12 @@ const fox01 = new Sprite ({
                 },
                 frameCount: 4
             },
-            atack: {
+            meleee: {
                 paths: {
-                    0: './resources/assets/enemies/fox/atack/down.png',
-                    1: './resources/assets/enemies/fox/atack/left.png',
-                    2: './resources/assets/enemies/fox/atack/up.png',
-                    3: './resources/assets/enemies/fox/atack/right.png',
+                    0: './resources/assets/enemies/fox/melee/down.png',
+                    1: './resources/assets/enemies/fox/melee/left.png',
+                    2: './resources/assets/enemies/fox/melee/up.png',
+                    3: './resources/assets/enemies/fox/melee/right.png',
                 },
                 frameCount: 4
             }
@@ -259,11 +272,22 @@ const fox01Properties = new CharacterProperty({
     damage: 1, 
     velocity: 3
 });
-const fox01Enemy = new Enemy({
-    sprite: fox01,
+const fox01 = new Enemy({
+    sprite: fox01Sprite,
     properties: fox01Properties,
     boundaries: boundaries,
-    possibleMoves: possibleMoves
+    possibleMoves: possibleMoves,
+    triggersOffset: {
+        x: 20,
+        y: 40
+    },
+    collider: new BoxCollider({
+        offset: {
+            x: 25,
+            y: 25
+        },
+        sprite: fox01Sprite
+    })
 });
 
 const ancientImage = new Image();
@@ -366,16 +390,58 @@ const keys = {
 
 
 
-const movables = [background, ...boundaries, foreground, ancient, fox01, master, farmer];
+const movables = [background, ...boundaries, foreground, ancient, fox01Sprite, master, farmer];
 
 
 let playerDirection = 0;
 
-let enemies = [fox01Enemy.sprite];
+let enemies = [fox01.sprite];
 
+function drawGzimos () {
+    // Fox Collision
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    ctx.fillRect(
+        fox01.collider.position.x, 
+        fox01.collider.position.y, 
+        fox01.collider.width, 
+        fox01.collider.height);
+    // Fox Pivot 
+    ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+    ctx.fillRect(
+        fox01Sprite.position.x, 
+        fox01Sprite.position.y,
+        10,
+        10);
+        
 
+    // Player Collision
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    ctx.fillRect(
+        player.collider.position.x, 
+        player.collider.position.y, 
+        player.collider.width, 
+        player.collider.height);
+    // Player Pivot
+    ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+    ctx.fillRect(
+        player.sprite.position.x, 
+        player.sprite.position.y,
+        10,
+        10);
+}
 function toOrderCharacters () {
-    let characters = [...enemies, 
+    let characters = [
+        {
+            position: {
+                x: fox01.sprite.position.x,
+                y: fox01.sprite.position.y + 15
+            },
+            width: fox01.sprite.width,
+            height: fox01.sprite.height,
+            draw: () => {
+                fox01.sprite.draw();
+            }
+        }, 
         {
             position: {
                 x: ancient.position.x,
@@ -414,13 +480,13 @@ function toOrderCharacters () {
     let wasPlayerDrawn = false;
 
     for (let character of characters) {
-        if(!wasPlayerDrawn && collisionDetection(player, character) && player.position.y - 10 < character.position.y){
+        if(!wasPlayerDrawn && collisionDetection(playerSprite, character) && player.sprite.position.y - 10 < character.position.y){
 
             if(playerDirection === 2) {
                 atackEffect.draw();
-                player.draw();
+                player.sprite.draw();
             } else {
-                player.draw();
+                player.sprite.draw();
                 atackEffect.draw();
             }
             wasPlayerDrawn = true;
@@ -430,9 +496,9 @@ function toOrderCharacters () {
     if(!wasPlayerDrawn) {
         if(playerDirection === 2) {
             atackEffect.draw();
-            player.draw();
+            player.sprite.draw();
         } else {
-            player.draw();
+            player.sprite.draw();
             atackEffect.draw();
         }
     }
@@ -445,27 +511,34 @@ function animate () {
 
     background.draw();
 
+    fox01.collider.updateCollider()
 
     boundaries.forEach(boundary => {
         boundary.draw();
     });
     
 
-    master.draw();
-    farmer.draw();
     
     toOrderCharacters();
+
     foreground.draw();
+
+
+
+
+    drawGzimos ()
+
+    // fox01Enemy.onPlayerEnter(playerSprite);
     
     
     let moving = true;
-    if(!player.animation.isPlaying) {
-        player.animation.setAnimation('idle', playerDirection);
+    if(!player.sprite.animation.isPlaying) {
+        player.sprite.animation.setAnimation('idle', playerDirection);
     }
 
-    if (keys.space.pressed && !player.animation.isPlaying) {
-        player.animation.isPlaying = true;
-        player.animation.setAnimation('melee', playerDirection);
+    if (keys.space.pressed && !player.sprite.animation.isPlaying) {
+        player.sprite.animation.isPlaying = true;
+        player.sprite.animation.setAnimation('melee', playerDirection);
         
         atackEffect.animation.setAnimation('idle', playerDirection);
         atackEffect.opacity = 1;
@@ -473,53 +546,53 @@ function animate () {
         switch(playerDirection) {
             case 0:
                 atackEffect.position = {
-                    x: player.position.x - 18,
-                    y: player.position.y + 35
+                    x: player.sprite.position.x - 18,
+                    y: player.sprite.position.y + 35
                 };
             break;
             case 1: 
                 atackEffect.position = {
-                    x: player.position.x - 57,
-                    y: player.position.y - 11
+                    x: player.sprite.position.x - 57,
+                    y: player.sprite.position.y - 11
                 };
             break;
             case 2: 
                 atackEffect.position = {
-                    x: player.position.x ,
-                    y: player.position.y - 40
+                    x: player.sprite.position.x ,
+                    y: player.sprite.position.y - 40
                 };
             break;
             case 3: 
                 atackEffect.position = {
-                    x: player.position.x + 37,
-                    y: player.position.y - 11
+                    x: player.sprite.position.x + 37,
+                    y: player.sprite.position.y - 11
                 };
             break;
         }
 
         setTimeout(() => {
-            player.animation.isPlaying = false;
-            player.animation.setAnimation('idle', playerDirection);
+            player.sprite.animation.isPlaying = false;
+            player.sprite.animation.setAnimation('idle', playerDirection);
             atackEffect.opacity = 0;
-        }, player.animation.frameRate * player.animation.currentSource.frameCount * 16.67);
+        }, player.sprite.animation.frameRate * player.sprite.animation.currentSource.frameCount * 16.67);
         
         moving = false;
     }
     
-    if (player.animation.currentSource !== player.animation.sources.melee) {
+    if (player.sprite.animation.currentSource !== player.sprite.animation.sources.melee) {
      
         if (keys.w.pressed && lastkey === 'w') {
-            player.animation.isPlaying = true;
-            player.animation.setAnimation('walk', 2);
+            player.sprite.animation.isPlaying = true;
+            player.sprite.animation.setAnimation('walk', 2);
             playerDirection = 2;
             
-            player.position = {
+            player.sprite.position = {
                 x: canvas.width/2 - (playerImage.width/10)/2,
                 y: canvas.height/2 - playerImage.height/2
             }
             
             
-            moving = canMove({ x: 0, y: playerProperties.velocity}); 
+            moving = player.canMove({ x: 0, y: playerProperties.velocity}); // this.player.canMove({ x: 0, y: playerProperties.velocity});
 
             if(moving)
                 movables.forEach(movable => {
@@ -527,17 +600,17 @@ function animate () {
                 });    
         }
         if (keys.s.pressed && lastkey === 's') {
-            player.animation.isPlaying = true;
-            player.animation.setAnimation('walk', 0);
+            player.sprite.animation.isPlaying = true;
+            player.sprite.animation.setAnimation('walk', 0);
             playerDirection = 0;
 
-            player.position = {
+            player.sprite.position = {
                 x: canvas.width/2 - (playerImage.width/10)/2,
                 y: canvas.height/2 - playerImage.height/2
             }
         
             
-            moving = canMove({ x: 0, y: - playerProperties.velocity});
+            moving = player.canMove({ x: 0, y: - playerProperties.velocity});
 
             if(moving)
                 movables.forEach(movable => {
@@ -545,74 +618,46 @@ function animate () {
                 });   
         }
         if (keys.a.pressed && lastkey === 'a') {
-            player.animation.isPlaying = true;
-            player.animation.setAnimation('walk', 1);
+            player.sprite.animation.isPlaying = true;
+            player.sprite.animation.setAnimation('walk', 1);
             playerDirection = 1;
 
-            player.position = {
+            player.sprite.position = {
                 x: canvas.width/2 - (playerImage.width/10)/2,
                 y: canvas.height/2 - playerImage.height/2
             }
 
 
-            moving = canMove({ x: playerProperties.velocity, y: 0});
+            moving = player.canMove({ x: playerProperties.velocity, y: 0});
             if(moving)
                 movables.forEach(movable => {
                     movable.position.x = movable.position.x + playerProperties.velocity;
                 });   
         }
         if (keys.d.pressed && lastkey === 'd') {
-            player.animation.isPlaying = true;
-            player.animation.setAnimation('walk', 3);
+            player.sprite.animation.isPlaying = true;
+            player.sprite.animation.setAnimation('walk', 3);
             playerDirection = 3;
 
-            player.position = {
+            player.sprite.position = {
                 x: canvas.width/2 - (playerImage.width/10)/2,
                 y: canvas.height/2 - playerImage.height/2
             }
 
 
-            moving = canMove({ x: - playerProperties.velocity, y: 0});
+            moving = player.canMove({ x: - playerProperties.velocity, y: 0});
             if(moving)
                 movables.forEach(movable => {
                     movable.position.x = movable.position.x - playerProperties.velocity;
                 });   
         }
     }
-    if (keys.space.pressed && player.animation.isPlaying) {
+    if (keys.space.pressed && player.sprite.animation.isPlaying) {
         keys.space.pressed = false; 
     }
 
 }
 animate();
-
-function canMove (position) {
-    for (let i = 0; i < boundaries.length; i++) {
-        const boundary = boundaries[i];
-
-        if(collisionDetection(
-            {
-                position: {
-                    x: player.position.x + 20,
-                    y: player.position.y + 40
-                },
-                width: player.width - 40,
-                height: player.height - 40
-            }, {
-            ...boundary, position: {
-                x: boundary.position.x + position.x,
-                y: boundary.position.y + position.y
-            }
-        })) {
-            return false;
-        }
-
-    }
-    return true;
-}
-
-
-
 
 
 // KEYMAPPING
@@ -653,19 +698,19 @@ window.addEventListener('keyup', (e) => {
     switch (e.key) {
         case 'w':
             keys.w.pressed = false;
-            player.animation.isPlaying = false;
+            player.sprite.animation.isPlaying = false;
         break;
         case 's':
             keys.s.pressed = false;
-            player.animation.isPlaying = false;
+            player.sprite.animation.isPlaying = false;
         break;
         case 'a':
             keys.a.pressed = false;
-            player.animation.isPlaying = false;
+            player.sprite.animation.isPlaying = false;
         break;
         case 'd':
             keys.d.pressed = false;
-            player.animation.isPlaying = false;
+            player.sprite.animation.isPlaying = false;
         break;
         case ' ':
             keys.space.pressed = false;
