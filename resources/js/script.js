@@ -381,15 +381,40 @@ function toOrderCharacters () {
                 x: ancient.position.x,
                 y: ancient.position.y + 15
             },
-            draw () {
+            width: ancient.width,
+            height: ancient.height,
+            draw: () => {
                 ancient.draw();
             }
-        }
+        },
+        {
+            position: {
+                x: master.position.x,
+                y: master.position.y
+            },
+            width: master.width,
+            height: master.height,
+            draw: () => {
+                master.draw();
+            }
+        },
+        {
+            position: {
+                x: farmer.position.x,
+                y: farmer.position.y
+            },
+            width: farmer.width,
+            height: farmer.height,
+            draw: () => {
+                farmer.draw();
+            }
+        },
+
     ];
     let wasPlayerDrawn = false;
 
     for (let character of characters) {
-        if(!wasPlayerDrawn && player.position.y - 10 < character.position.y){
+        if(!wasPlayerDrawn && collisionDetection(player, character) && player.position.y - 10 < character.position.y){
 
             if(playerDirection === 2) {
                 atackEffect.draw();
@@ -432,7 +457,6 @@ function animate () {
     toOrderCharacters();
     foreground.draw();
     
-
     
     let moving = true;
     if(!player.animation.isPlaying) {
