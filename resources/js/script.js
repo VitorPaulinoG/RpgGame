@@ -2,6 +2,7 @@ import { Sprite } from './view/Sprite.js';
 import { Animation } from './view/Animation.js';
 
 import { Boundary } from './data/Boundary.js'
+import { CharacterProperty } from './view/CharacterProperty.js';
 
 const canvas = document.querySelector('canvas');
 canvas.width = 1024;
@@ -114,9 +115,13 @@ const player = new Sprite({
         x: canvas.width/2 - playerImage.width/2, 
         y: canvas.height/2 - playerImage.height/2
     },
-    velocity: 3,
     opacity: 1,
     ctx: ctx
+});
+const playerProperties = new CharacterProperty({
+    hp: 3, 
+    damage: 1, 
+    velocity: 3
 });
 
 const atackEffectImage = new Image();
@@ -148,6 +153,58 @@ const atackEffect = new Sprite({
         y: player.position.y + 35
     }
     
+});
+
+const fox01Image = new Image();
+fox01Image.src = './resources/assets/enemies/fox/movement/down.png';
+const fox01 = new Sprite ({
+    animation: new Animation({
+        hasAnimations: true,
+        sources: {
+            idle: {
+                paths: {
+                    0: './resources/assets/enemies/fox/movement/down.png',
+                    1: './resources/assets/enemies/fox/movement/left.png',
+                    2: './resources/assets/enemies/fox/movement/up.png',
+                    3: './resources/assets/enemies/fox/movement/right.png',
+                },
+                frameCount: 4
+            },
+            walk: {
+                paths: {
+                    0: './resources/assets/enemies/fox/movement/down.png',
+                    1: './resources/assets/enemies/fox/movement/left.png',
+                    2: './resources/assets/enemies/fox/movement/up.png',
+                    3: './resources/assets/enemies/fox/movement/right.png',
+                },
+                frameCount: 4
+            },
+            atack: {
+                paths: {
+                    0: './resources/assets/enemies/fox/atack/down.png',
+                    1: './resources/assets/enemies/fox/atack/left.png',
+                    2: './resources/assets/enemies/fox/atack/up.png',
+                    3: './resources/assets/enemies/fox/atack/right.png',
+                },
+                frameCount: 4
+            }
+        }, 
+        frameRate: 5,
+        image: fox01Image,
+        isPlaying: true
+    }),
+    position: {
+        x: 760, 
+        y: 50
+    }, 
+    width: fox01Image.width/4,
+    opacity: 1,
+    ctx: ctx
+});
+const fox01Properties = new CharacterProperty({
+    hp: 3, 
+    damage: 1, 
+    velocity: 3
 });
 
 const ancientImage = new Image();
@@ -300,7 +357,7 @@ const keys = {
 
 
 
-const movables = [background, ...boundaries, foreground, ancient, master, farmer];
+const movables = [background, ...boundaries, foreground, ancient, fox01, master, farmer];
 
 function collision (rectangle1, rectangle2) {
     return (rectangle1.position.x + rectangle1.width >= rectangle2.position.x &&
@@ -310,9 +367,60 @@ function collision (rectangle1, rectangle2) {
 }
 let currentAnimationNumber = 0;
 
+let targetDir = Math.floor(Math.random() * 5);;
+const possibleMoves = [
+    {x: 0, y: 0}, 
+    {x: 1, y: 0 },
+    {x: -1, y: 0 },
+    {x: 0, y: 1 },
+    {x: 0, y: -1 }
+];
+/*
+position: fox01.position,
+width: fox01.,
+height: 
+*/
+let forbiddenDir = -1;
+setInterval(() => {
+    forbiddenDir = enemyCanMove(fox01, {
+        x: possibleMoves[targetDir].x,
+        y: possibleMoves[targetDir].y
+    }, fox01Properties.velocity);
+    if(targetDir !== forbiddenDir) {
+        fox01.position.x += fox01Properties.velocity * possibleMoves[targetDir].x;
+        fox01.position.y += fox01Properties.velocity * possibleMoves[targetDir].y;
+    }
+}, 100);
 
+/*
+moving = canMove({ x: - playerProperties.velocity, y: 0});
+if(moving)
+    movables.forEach(movable => {
+        movable.position.x = movable.position.x - playerProperties.velocity;
+    });   
+*/
+setInterval(() => {
+    do {
+        targetDir = Math.floor(Math.random() * 5);
+    }while(targetDir === forbiddenDir) ;
+}, 5_000);
 
+let enemies = [fox01];
 
+function toOrderCharacters () {
+    let characters = [...enemies];
+    let wasPlayerDrawn = false;
+
+    for (let character of characters) {
+        if(!wasPlayerDrawn && player.position.y - 10 < character.position.y){
+            player.draw();
+            wasPlayerDrawn = true;
+        }
+        character.draw();
+    }
+    if(!wasPlayerDrawn)
+        player.draw();
+}
 function animate () {
     window.requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -328,19 +436,27 @@ function animate () {
     ancient.draw(); 
     master.draw();
     farmer.draw();
-    
+
+    // fox01.draw();
     if(currentAnimationNumber === 2) {
         atackEffect.draw();
-        player.draw();
+        toOrderCharacters();
+        // player.draw();
     } else {
-        player.draw();
+        toOrderCharacters();
+        // player.draw();
         atackEffect.draw();
     }
     foreground.draw();
 /// REmover
     // ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
     // ctx.fillRect(player.position.x + 20, player.position.y + 40, player.width-40, player.height - 40)
-
+    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    ctx.fillRect(
+        fox01.position.x + 30, 
+        fox01.position.y + 40, 
+        fox01.width - 40, 
+        fox01.height - 40);
 
     let moving = true;
     if(!player.animation.isPlaying) {
@@ -403,11 +519,11 @@ function animate () {
             }
             
             
-            moving = canMove({ x: 0, y: player.velocity});
+            moving = canMove({ x: 0, y: playerProperties.velocity}); 
 
             if(moving)
                 movables.forEach(movable => {
-                    movable.position.y = movable.position.y + player.velocity;
+                    movable.position.y = movable.position.y + playerProperties.velocity;
                 });    
         }
         if (keys.s.pressed && lastkey === 's') {
@@ -421,11 +537,11 @@ function animate () {
             }
         
             
-            moving = canMove({ x: 0, y: - player.velocity});
+            moving = canMove({ x: 0, y: - playerProperties.velocity});
 
             if(moving)
                 movables.forEach(movable => {
-                    movable.position.y = movable.position.y - player.velocity;
+                    movable.position.y = movable.position.y - playerProperties.velocity;
                 });   
         }
         if (keys.a.pressed && lastkey === 'a') {
@@ -439,10 +555,10 @@ function animate () {
             }
 
 
-            moving = canMove({ x: player.velocity, y: 0});
+            moving = canMove({ x: playerProperties.velocity, y: 0});
             if(moving)
                 movables.forEach(movable => {
-                    movable.position.x = movable.position.x + player.velocity;
+                    movable.position.x = movable.position.x + playerProperties.velocity;
                 });   
         }
         if (keys.d.pressed && lastkey === 'd') {
@@ -456,10 +572,10 @@ function animate () {
             }
 
 
-            moving = canMove({ x: - player.velocity, y: 0});
+            moving = canMove({ x: - playerProperties.velocity, y: 0});
             if(moving)
                 movables.forEach(movable => {
-                    movable.position.x = movable.position.x - player.velocity;
+                    movable.position.x = movable.position.x - playerProperties.velocity;
                 });   
         }
     }
@@ -496,6 +612,42 @@ function canMove (position) {
     return true;
 }
 
+/* 
+    ctx.fillRect(
+        fox01.position.x + possibleMoves[targetDir].x + 30, 
+        fox01.position.y + possibleMoves[targetDir].y + 40, 
+        fox01.width - 40, 
+        fox01.height - 40);
+*/
+function enemyCanMove (enemy, position, velocity) {
+    for (let i = 0; i < boundaries.length; i++) {
+        const boundary = boundaries[i];
+
+        if (collision(
+            {
+                position: {
+                    x: enemy.position.x + (velocity * position.x) + 30, 
+                    y: enemy.position.y + (velocity * position.y) + 40
+                }, 
+                width: enemy.width - 40, 
+                height: enemy.height - 40
+            }, 
+            {
+                ...boundary, 
+                position: {
+                    x: boundary.position.x,
+                    y: boundary.position.y
+                }
+            })) 
+        {
+            console.log('Colidiu');
+            return possibleMoves.findIndex((x) => x.x === position.x && x.y === position.y);
+            
+        }
+
+    }
+    return -1;
+}
 
 
 
