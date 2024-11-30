@@ -169,8 +169,7 @@ const playerSprite = new Sprite({
         isPlaying: false,
         frameRate: 5,
         aditionalConditions: (animation) => {
-            // (this.currentSource === this.sources['melee']) 
-            //     //     this.isPlaying = false; 
+            
             if(animation.currentSource === animation.sources['melee'])
                 animation.isPlaying = false;
             else 
@@ -270,7 +269,14 @@ const fox01Sprite = new Sprite ({
         }, 
         frameRate: 10,
         image: fox01Image,
-        isPlaying: true
+        isPlaying: true,
+        // aditionalConditions: (animation) => {
+        //     if(animation.currentSource === animation.sources['melee'])
+        //         if(animation.frameNumber === animation.sources['melee'].frameCount)
+        //             animation.setAnimation('idle', animation.currentSource.currentPath);
+        //     else 
+        //         animation.frameNumber = 0;
+        // }
     }),
     position: {
         x: 760, 

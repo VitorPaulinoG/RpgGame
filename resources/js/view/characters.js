@@ -40,7 +40,7 @@ export class Enemy {
         this.possibleMoves = possibleMoves;
         this.targetDir = Math.floor(Math.random() * this.possibleMoves.length);
         this.direction = (this.targetDir === 0)? 0: this.targetDir - 1;
-        this.setAnimation();
+        this.setMovementAnimation();
         this.boundaries = boundaries;
         this.moveEnemy();
         this.changeDirection();
@@ -48,6 +48,9 @@ export class Enemy {
         this.triggersOffset = triggersOffset;
         this.triggers = [];
         this.updateTriggers();
+        this.isAttacking = false;
+        this.isPreAttacking = false;
+        this.isDetectingPlayer = false;
     }
 
     updateTriggers () {
@@ -74,7 +77,7 @@ export class Enemy {
     moveEnemy () {
         setInterval(() => {
             this.forbiddenDir = this.canMove();
-            if(this.targetDir !== this.forbiddenDir) {
+            if(!this.isPreAttacking && !this.isAttacking && this.targetDir !== this.forbiddenDir) {
                 this.sprite.position.x += this.properties.velocity * this.possibleMoves[this.targetDir].x;
                 this.sprite.position.y += this.properties.velocity * this.possibleMoves[this.targetDir].y;
             }
@@ -84,16 +87,50 @@ export class Enemy {
     detectPlayer (player) {
         this.updateTriggers();
         for (let i = 0; i < this.triggers.length; i++) {
-            if(collisionDetection(player.collider, {
-                position: this.triggers[i],
-                width: this.collider.width, 
-                height: this.collider.height})) 
-            {
+            this.isDetectingPlayer = 
+                (!this.isAttacking && !this.isDetectingPlayer && collisionDetection(player.collider, 
+                    {
+                        position: this.triggers[i],
+                        width: this.collider.width, 
+                        height: this.collider.height
+                    }
+                ));
+            if(this.isDetectingPlayer && !this.isAttacking) {
+                // this.isDetectingPlayer = true;
                 console.log(`OnTrigger: ${i}`);
                 let timeToAtack = Math.floor(Math.random() * (1500 - 500 + 1)) + 500;
-                // this.sprite.animation.setAnimation('')
+                let timeToFace = 400 - Math.floor(Math.random() * (400 - 200));
                 
-                //this.sprite.animation.setAnimation('meleee', i);
+                // this.sprite.animation.setAnimation('idle', i);
+                setTimeout(() => { 
+                    this.targetDir = i + 1;
+                    this.setMovementAnimation();
+                    
+                }, timeToFace);
+                setTimeout(() => { 
+                    this.isPreAttacking = true;
+                    this.targetDir = 0;
+                    this.setMovementAnimation();
+                }, 400);
+            
+                setTimeout(() => {
+                    
+                    if(!this.isAttacking) {
+                        this.isAttacking = collisionDetection(player.collider, {
+                            position: this.triggers[i],
+                            width: this.collider.width, 
+                            height: this.collider.height});
+                        if(this.isAttacking) {
+                            this.isPreAttacking = false;
+                            this.sprite.animation.setAnimation('melee', i);
+                            setTimeout(() => {this.isAttacking = false}, 500);
+                        } else {
+                            this.isPreAttacking = false;
+                        }
+                    } 
+                }, timeToAtack);
+
+                // setTimeout(() => {this.isAttacking = false}, 1500);
             }
         }
     }
@@ -106,7 +143,7 @@ export class Enemy {
                 this.targetDir = Math.floor(Math.random() * this.possibleMoves.length);
             }while(this.targetDir  === this.forbiddenDir);
 
-            this.setAnimation();
+            this.setMovementAnimation();
             executionCount++;
 
             if (executionCount >= maxExecutionsBeforeChange) {
@@ -119,7 +156,7 @@ export class Enemy {
 
     }
 
-    setAnimation () {
+    setMovementAnimation () {
         if(this.targetDir === 0)
             this.sprite.animation.setAnimation('idle', this.direction);
         else {

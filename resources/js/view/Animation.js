@@ -10,7 +10,7 @@ export class Animation {
         this.currentSource = this.sources['idle'];
         this.currentSource.currentPath = 0;
         this.image.src = this.currentSource.paths[0];
-        this.aditionalConditions = aditionalConditions;
+        this.additionalConditions = aditionalConditions;
     }
 
     setAnimation(name, number) {
@@ -36,8 +36,8 @@ export class Animation {
             if(this.frameNumber < this.currentSource.frameCount - 1) 
                 this.frameNumber++;
             else {
-                if (this.aditionalConditions !== null && this.aditionalConditions !== undefined) 
-                    this.aditionalConditions(this);
+                if (this.additionalConditions !== null && this.additionalConditions !== undefined) 
+                    this.additionalConditions(this);
                 else 
                     this.frameNumber = 0;
                 // if (this.currentSource === this.sources['melee']) 
