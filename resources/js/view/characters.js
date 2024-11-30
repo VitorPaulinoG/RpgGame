@@ -1,4 +1,10 @@
-
+export class CharacterProperty {
+    constructor({hp, damage, velocity}) {
+        this.hp = hp;
+        this.damage = damage;
+        this.velocity = velocity;
+    }
+}
 export class Player {
     constructor ({sprite, properties, collider, boundaries}) {
         this.sprite = sprite;
@@ -6,9 +12,6 @@ export class Player {
         this.collider = collider;
         this.boundaries = boundaries;
     }
-
-
-
     canMove (position) {
         for (let i = 0; i < this.boundaries.length; i++) {
             const boundary = this.boundaries[i];
@@ -27,31 +30,6 @@ export class Player {
         }
         return true;
     }
-
-// function canMove (position) {
-//     for (let i = 0; i < boundaries.length; i++) {
-//         const boundary = boundaries[i];
-
-//         if(collisionDetection(
-//             {
-//                 position: {
-//                     x: player.position.x + 20,
-//                     y: player.position.y + 40
-//                 },
-//                 width: player.width - 40,
-//                 height: player.height - 40
-//             }, {
-//             ...boundary, position: {
-//                 x: boundary.position.x + position.x,
-//                 y: boundary.position.y + position.y
-//             }
-//         })) {
-//             return false;
-//         }
-
-//     }
-//     return true;
-// }
 }
 export class Enemy {
     constructor ({sprite, properties, possibleMoves, boundaries, triggersOffset, collider}) {
@@ -76,21 +54,21 @@ export class Enemy {
         this.triggers = 
             [
                 {
-                    x: this.sprite.position.x + this.triggersOffset.x,
-                    y: this.sprite.position.y + this.sprite.height
+                    x: this.collider.position.x,
+                    y: this.collider.position.y + this.collider.height
                 },
                 {
-                    x: this.sprite.position.x - (this.sprite.width - 40) + this.triggersOffset.x,
-                    y: this.sprite.position.y + this.triggersOffset.y
+                    x: this.collider.position.x - this.collider.width,
+                    y: this.collider.position.y
                 },
                 {
-                    x: this.sprite.position.x + (this.sprite.width - 40) + this.triggersOffset.x,
-                    y: this.sprite.position.y + this.triggersOffset.y
-                },  
+                    x: this.collider.position.x,
+                    y: this.collider.position.y - this.collider.height
+                },
                 {
-                    x: this.sprite.position.x + this.triggersOffset.x,
-                    y: this.sprite.position.y - (this.sprite.height - 40) + this.triggersOffset.y
-                }
+                    x: this.collider.position.x + this.collider.width,
+                    y: this.collider.position.y
+                }  
             ];
     }
     moveEnemy () {
@@ -103,14 +81,18 @@ export class Enemy {
         }, 100);
     }
 
-    onPlayerEnter (player) {
+    detectPlayer (player) {
         this.updateTriggers();
         for (let i = 0; i < this.triggers.length; i++) {
-            if(collisionDetection(player, {
+            if(collisionDetection(player.collider, {
                 position: this.triggers[i],
-                width: this.sprite.width - 40, 
-                height: this.sprite.height - 40})) 
+                width: this.collider.width, 
+                height: this.collider.height})) 
             {
+                console.log(`OnTrigger: ${i}`);
+                let timeToAtack = Math.floor(Math.random() * (1500 - 500 + 1)) + 500;
+                // this.sprite.animation.setAnimation('')
+                
                 //this.sprite.animation.setAnimation('meleee', i);
             }
         }

@@ -2,8 +2,7 @@ import { Sprite } from './view/Sprite.js';
 import { Animation } from './view/Animation.js';
 
 import { Boundary } from './data/Boundary.js'
-import { CharacterProperty } from './view/CharacterProperty.js';
-import { Enemy, Player } from './view/Enemy.js';
+import { Enemy, Player, CharacterProperty } from './view/characters.js';
 import { BoxCollider } from './data/BoxCollider.js';
 
 const canvas = document.querySelector('canvas');
@@ -67,13 +66,19 @@ collisionsMap.forEach((row, i) => {
     });
 });
 
-const possibleMoves = [
+
+
+const enemyPossibleMoves = [
     {x: 0, y: 0}, 
     {x: 0, y: 1 },
     {x: -1, y: 0 },
     {x: 0, y: -1 },
     {x: 1, y: 0 }
 ];
+
+
+// -------   Game Objects    -----
+
 const backgroundImage = new Image();
 backgroundImage.src = './resources/assets/map.png';
 const background = new Sprite({
@@ -162,7 +167,16 @@ const playerSprite = new Sprite({
         },
         image: playerImage,
         isPlaying: false,
-        frameRate: 5
+        frameRate: 5,
+        aditionalConditions: (animation) => {
+            // (this.currentSource === this.sources['melee']) 
+            //     //     this.isPlaying = false; 
+            if(animation.currentSource === animation.sources['melee'])
+                animation.isPlaying = false;
+            else 
+                animation.frameNumber = 0;
+
+        }
     }),
     position: {
         x: canvas.width/2 - playerImage.width/2, 
@@ -220,7 +234,6 @@ const atackEffect = new Sprite({
     
 });
 
-
 const fox01Image = new Image();
 fox01Image.src = './resources/assets/enemies/fox/idle/down.png';
 const fox01Sprite = new Sprite ({
@@ -245,7 +258,7 @@ const fox01Sprite = new Sprite ({
                 },
                 frameCount: 4
             },
-            meleee: {
+            melee: {
                 paths: {
                     0: './resources/assets/enemies/fox/melee/down.png',
                     1: './resources/assets/enemies/fox/melee/left.png',
@@ -276,7 +289,7 @@ const fox01 = new Enemy({
     sprite: fox01Sprite,
     properties: fox01Properties,
     boundaries: boundaries,
-    possibleMoves: possibleMoves,
+    possibleMoves: enemyPossibleMoves,
     triggersOffset: {
         x: 20,
         y: 40
@@ -388,18 +401,22 @@ const keys = {
     }
 }
 
-
-
 const movables = [background, ...boundaries, foreground, ancient, fox01Sprite, master, farmer];
+
 
 
 let playerDirection = 0;
 
-let enemies = [fox01.sprite];
 
 function drawGzimos () {
+    
+    boundaries.forEach(boundary => {
+        boundary.draw();
+    });
+
+
     // Fox Collision
-    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
     ctx.fillRect(
         fox01.collider.position.x, 
         fox01.collider.position.y, 
@@ -408,14 +425,24 @@ function drawGzimos () {
     // Fox Pivot 
     ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
     ctx.fillRect(
-        fox01Sprite.position.x, 
-        fox01Sprite.position.y,
+        fox01.sprite.position.x, 
+        fox01.sprite.position.y,
         10,
         10);
+
+    // Fox Triggers
+    for(let trigger of fox01.triggers) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+        ctx.fillRect(
+            trigger.x, 
+            trigger.y,
+            fox01.collider.width,
+            fox01.collider.height);
+    }
         
 
     // Player Collision
-    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
     ctx.fillRect(
         player.collider.position.x, 
         player.collider.position.y, 
@@ -429,6 +456,7 @@ function drawGzimos () {
         10,
         10);
 }
+
 function toOrderCharacters () {
     let characters = [
         {
@@ -504,6 +532,7 @@ function toOrderCharacters () {
     }
         
 }
+
 function animate () {
     window.requestAnimationFrame(animate);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -513,22 +542,14 @@ function animate () {
 
     fox01.collider.updateCollider()
 
-    boundaries.forEach(boundary => {
-        boundary.draw();
-    });
     
-
     
     toOrderCharacters();
-
     foreground.draw();
 
 
-
-
-    drawGzimos ()
-
-    // fox01Enemy.onPlayerEnter(playerSprite);
+    drawGzimos ();
+    fox01.detectPlayer(player);
     
     
     let moving = true;
