@@ -586,8 +586,9 @@ function animate () {
     foreground.draw();
     hud.draw();
 
-
-    drawGzimos ();
+    if(document.getElementById('gzimos').checked){
+        drawGzimos ();
+    }
     fox01.detectPlayer(player);
     
     
