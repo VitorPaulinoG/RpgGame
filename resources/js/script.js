@@ -1,5 +1,6 @@
 import { Sprite } from './view/Sprite.js';
 import { Animation } from './view/Animation.js';
+import { Dialogue } from './view/Dialogue.js';
 
 import { Boundary } from './data/Boundary.js'
 import { CharacterProperty } from './view/CharacterProperty.js';
@@ -232,6 +233,24 @@ const ancient = new Sprite({
     ctx: ctx
 });
 
+
+
+
+
+
+
+
+
+
+
+// function ancientCheck(player, ancient, distance) {
+//     const dx = player.position.x - ancient.position.x;
+//     const dy = player.position.y - ancient.position.y;
+//     return Math.sqrt(dx * dx + dy * dy) <= distance;
+// }
+
+
+
 const masterImage = new Image();
 masterImage.src = './resources/assets/npc/master/master.png';
 const master = new Sprite({
@@ -256,6 +275,13 @@ const master = new Sprite({
     opacity: 1,
     ctx: ctx
 });
+
+
+// function masterCheck(player, master, distance) {
+//     const dx = player.position.x - master.position.x;
+//     const dy = player.position.y - master.position.y;
+//     return Math.sqrt(dx * dx + dy * dy) <= distance;
+// }
 
 
 const farmerImage = new Image();
@@ -283,6 +309,20 @@ const farmer = new Sprite({
     ctx: ctx
 });
 
+const dialogues = [
+    new Dialogue(ancient, "Olá, viajante! Você quer mais vidas?"),
+    new Dialogue(master, "Você quer melhorar suas habilidades, viajante?"),
+    new Dialogue(farmer, "Esses malditos monstros! Estão destruindo a vila!")
+];
+
+function getCurrentDialogue(player) {
+    for (const dialogue of dialogues) {
+        if (dialogue.verificarProximidadePlayer(player)) {
+            return dialogue.text;
+        }
+    }
+    return ""; // Se não houver diálogo, retorna vazio
+}
 
 const backgroundImage = new Image();
 backgroundImage.src = './resources/assets/map.png';
@@ -350,9 +390,12 @@ const keys = {
     d: {
         pressed: false
     },
+    space: {
+        pressed: false
+    },
     q: {
         pressed: false
-    }
+    }   
 }
 
 
@@ -433,10 +476,22 @@ function animate () {
         boundary.draw();
     });
 
+    const currentDialogueText = getCurrentDialogue(player); // Atualizando o diálogo atual
+
+    // Verifica se há um diálogo e se a tecla 'q' foi pressionada
+    if (currentDialogueText && keys.q.pressed) {
+        // Desenha o diálogo
+        const currentDialogue = dialogues.find(d => d.text === currentDialogueText);
+        if (currentDialogue) {
+            currentDialogue.drawDialogue(ctx, canvas);
+        }
+    }
+
     ancient.draw(); 
     master.draw();
     farmer.draw();
-
+    
+ 
     // fox01.draw();
     if(currentAnimationNumber === 2) {
         atackEffect.draw();
@@ -463,7 +518,7 @@ function animate () {
         player.animation.setAnimation('idle', currentAnimationNumber);
     }
 
-    if (keys.q.pressed && !player.animation.isPlaying) {
+    if (keys.space.pressed && !player.animation.isPlaying) {
         player.animation.isPlaying = true;
         player.animation.setAnimation('melee', currentAnimationNumber);
         
@@ -579,8 +634,8 @@ function animate () {
                 });   
         }
     }
-    if (keys.q.pressed && player.animation.isPlaying) {
-        keys.q.pressed = false; 
+    if (keys.space.pressed && player.animation.isPlaying) {
+        keys.space.pressed = false; 
     }
 
 }
@@ -640,7 +695,6 @@ function enemyCanMove (enemy, position, velocity) {
                 }
             })) 
         {
-            console.log('Colidiu');
             return possibleMoves.findIndex((x) => x.x === position.x && x.y === position.y);
             
         }
@@ -679,10 +733,12 @@ window.addEventListener('keydown', (e) => {
                 lastkey = 'd';
             }
         break;
+        case ' ':
+            keys.space.pressed = true;
+            break;
         case 'q':
             keys.q.pressed = true;
             break;
-
     }
 });
 window.addEventListener('keyup', (e) => {
@@ -703,6 +759,9 @@ window.addEventListener('keyup', (e) => {
             keys.d.pressed = false;
             player.animation.isPlaying = false;
         break;
+        case ' ':
+            keys.space.pressed = false;
+            break;
         case 'q':
             keys.q.pressed = false;
             break;
