@@ -280,7 +280,7 @@ const foreground = new Sprite({
 
 let playerLife = 3;
 const hudImage = new Image();
-hudImage.src = './resources/assets/hud/hp.png';
+hudImage.src = './resources/assets/hud/hp 00.png';
 const hud = new Sprite({
     animation: new Animation({
         hasAnimations: false,
