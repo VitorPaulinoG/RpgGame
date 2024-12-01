@@ -414,7 +414,9 @@ const farmer = new Sprite({
     opacity: 1,
     ctx: ctx
 });
-let playerLife = 3;const dialogues = [
+let playerLife = 3;
+
+const dialogues = [
     new Dialogue(ancient, "Olá, viajante! Você quer mais vidas?"),
     new Dialogue(master, "Você quer melhorar suas habilidades, viajante?"),
     new Dialogue(farmer, "Esses malditos monstros! Estão destruindo a vila!")
@@ -628,7 +630,7 @@ function animate () {
     toOrderCharacters();
 
 
-    const currentDialogueText = getCurrentDialogue(player); // Atualizando o diálogo atual
+    const currentDialogueText = getCurrentDialogue(player.sprite); // Atualizando o diálogo atual
 
     // Verifica se há um diálogo e se a tecla 'q' foi pressionada
     if (currentDialogueText && keys.q.pressed) {
@@ -639,21 +641,21 @@ function animate () {
         }
     }
 
-    ancient.draw(); 
-    master.draw();
-    farmer.draw();
+    // ancient.draw(); 
+    // master.draw();
+    // farmer.draw();
     
  
     // fox01.draw();
-    if(currentAnimationNumber === 2) {
-        atackEffect.draw();
-        toOrderCharacters();
-        // player.draw();
-    } else {
-        toOrderCharacters();
-        // player.draw();
-        atackEffect.draw();
-    }
+    // if(currentAnimationNumber === 2) {
+    //     atackEffect.draw();
+    //     toOrderCharacters();
+    //     // player.draw();
+    // } else {
+    //     toOrderCharacters();
+    //     // player.draw();
+    //     atackEffect.draw();
+    // }
     foreground.draw();
     hud.draw();
 
