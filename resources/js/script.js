@@ -135,6 +135,7 @@ const foreground = new Sprite({
 
 const playerImage = new Image();
 playerImage.src = './resources/assets/player/idle/down (3x).png';
+let playerHp = 3;
 const playerSprite = new Sprite({
     animation: new Animation ({
         hasAnimations: true,
@@ -387,8 +388,37 @@ const farmer = new Sprite({
     opacity: 1,
     ctx: ctx
 });
+let playerLife = 3;
+const hudImage = new Image();
+hudImage.src = './resources/assets/hud/hp 00.png';
+const hud = new Sprite({
+    animation: new Animation({
+        hasAnimations: false,
+        sources: {
+            idle: {
+                paths: {
+                    0: './resources/assets/hud/hp 03.png',
+                    1: './resources/assets/hud/hp 02.png',
+                    2: './resources/assets/hud/hp 01.png',
+                    3: './resources/assets/hud/hp 00.png',
+                },
+                frameCount: 1
+             },
+        },  
+        frameRate: 5,
+        image: hudImage,
+        isPlaying: false
+    }), 
+    position: {
+        x: 0,
+        y: 0
+    },
+    width: hudImage.width,
+    ctx: ctx,
+    opacity: 1  
+});
 
-
+hud.animation.setAnimation('idle', 3);
 
 const keys = {
     w: {
@@ -554,6 +584,7 @@ function animate () {
     
     toOrderCharacters();
     foreground.draw();
+    hud.draw();
 
 
     drawGzimos ();
@@ -759,10 +790,12 @@ let lastkey = '';
 window.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'w':
+           
             if(!keys.s.pressed) {
                 keys.w.pressed = true;
                 lastkey = 'w';
             }
+        
         break;
         case 's':
             if(!keys.w.pressed) {
@@ -814,5 +847,13 @@ window.addEventListener('keyup', (e) => {
 
 });
 
+function applyDamage(){
+    if(playerLife > 0) {
+        playerLife--; 
+        hud.animation.setAnimation('idle', playerLife); 
+    }else{
+        console.log('Game Over!'); 
+    }
+}
 
 
