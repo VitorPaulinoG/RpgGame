@@ -12,7 +12,7 @@ export class Boundary {
     }
 
     draw () {
-        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0)';
         this.ctx.fillRect(this.position.x, this.position.y, Boundary.width, Boundary.height);
     }
 }
