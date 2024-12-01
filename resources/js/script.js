@@ -278,6 +278,7 @@ const foreground = new Sprite({
     opacity: 1
 });
 
+let playerLife = 3;
 const hudImage = new Image();
 hudImage.src = './resources/assets/hud/hp.png';
 const hud = new Sprite({
@@ -286,12 +287,12 @@ const hud = new Sprite({
         sources: {
             idle: {
                 paths: {
-                    0: './resources/assets/hud/hp.png',
-                    1: './resources/assets/hud/hp.png',
-                    2: './resources/assets/hud/hp.png',
-                    3: './resources/assets/hud/hp.png',
+                    0: './resources/assets/hud/hp 03.png',
+                    1: './resources/assets/hud/hp 02.png',
+                    2: './resources/assets/hud/hp 01.png',
+                    3: './resources/assets/hud/hp 00.png',
                 },
-                frameCount: 4
+                frameCount: 1
              },
         },  
         frameRate: 5,
@@ -302,10 +303,12 @@ const hud = new Sprite({
         x: 0,
         y: 0
     },
-    width: hudImage.width/4,
+    width: hudImage.width,
     ctx: ctx,
     opacity: 1  
 });
+
+hud.animation.setAnimation('idle', 3);
 
 const keys = {
     w: {
@@ -477,7 +480,7 @@ function animate () {
             player.animation.isPlaying = true;
             player.animation.setAnimation('walk', 3);
             currentAnimationNumber = 3;
-
+            
             player.position = {
                 x: canvas.width/2 - (playerImage.width/10)/2,
                 y: canvas.height/2 - playerImage.height/2
@@ -532,10 +535,12 @@ let lastkey = '';
 window.addEventListener('keydown', (e) => {
     switch (e.key) {
         case 'w':
+           
             if(!keys.s.pressed) {
                 keys.w.pressed = true;
                 lastkey = 'w';
             }
+        
         break;
         case 's':
             if(!keys.w.pressed) {
@@ -586,6 +591,13 @@ window.addEventListener('keyup', (e) => {
 
 });
 
-
+function applyDamage(){
+    if(playerLife > 0) {
+        playerLife--; 
+        hud.animation.setAnimation('idle', playerLife); 
+    }else{
+        console.log('Game Over!'); 
+    }
+}
 
 
