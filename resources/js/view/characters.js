@@ -3,6 +3,7 @@ export class CharacterProperty {
         this.hp = hp;
         this.damage = damage;
         this.velocity = velocity;
+        this.isAlive = true;
     }
 }
 export class Player {
@@ -56,6 +57,8 @@ export class Enemy {
     }
 
     updateTriggers () {
+        if(!this.properties.isAlive) 
+            return
         this.triggers = 
             [
                 {
@@ -77,6 +80,8 @@ export class Enemy {
             ];
     }
     moveEnemy () {
+        if(!this.properties.isAlive) 
+            return
         setInterval(() => {
             this.forbiddenDir = this.canMove();
             if(!this.isPreAttacking && !this.isAttacking && this.targetDir !== this.forbiddenDir) {
@@ -87,6 +92,8 @@ export class Enemy {
     }
 
     detectPlayer (player) {
+        if(!this.properties.isAlive) 
+            return
         this.updateTriggers();
         for (let i = 0; i < this.triggers.length; i++) {
             this.isDetectingPlayer = 
@@ -133,6 +140,8 @@ export class Enemy {
     }
     
     changeDirection () {
+        if(!this.properties.isAlive) 
+            return
         let randomInterval = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
         let executionCount = 0; 
         const maxExecutionsBeforeChange = 5; 
@@ -155,6 +164,8 @@ export class Enemy {
     }
 
     setMovementAnimation () {
+        if(!this.properties.isAlive) 
+            return
         if(this.targetDir === 0)
             this.sprite.animation.setAnimation('idle', this.direction);
         else {
@@ -164,17 +175,20 @@ export class Enemy {
     }
 
     pushEnemy(pushDirection, pushForce, pushStep) {
+        if(!this.properties.isAlive) 
+            return
         let distanceMoved = 0;
+        this.properties.hp--;
         const maxDistance = pushForce; // Máxima distância que o inimigo deve ser empurrado
         
     
         // Intervalo para deslocar o inimigo gradualmente
+        this.sprite.filter = "saturate(1.2) hue-rotate(-30deg)";
         const pushInterval = setInterval(() => {
             const newPosition = {
                 x: pushDirection.x * pushStep,
                 y: pushDirection.y * pushStep
             };
-    
             if (!this.willCollide(
                     {
                         x: this.collider.position.x + newPosition.x,
@@ -193,9 +207,37 @@ export class Enemy {
             } else {
                 clearInterval(pushInterval); // Parar o empurrão ao encontrar uma colisão
             }
-        }, 16); // Atualização suave a cada 16ms (~60 FPS)
+            
+        }, 16); 
+        setTimeout(() => {
+            this.sprite.filter = "none";
+            if(this.properties.hp <= 0) {
+                console.log('O inimigo morreu');
+                this.removeEnemy();
+            }
+        }, 10 * maxDistance);
+        
     }
 
+    removeEnemy() {
+        // Remove o inimigo visualmente
+        this.isAlive = false;
+        let opacity = 100;
+        
+        let interval = setInterval(() => {
+            opacity -= 20;
+            this.sprite.filter = `opacity(${opacity/100})`; // Exemplo para esconder o sprite
+            if(opacity <= 0) {
+                clearInterval(interval);
+                this.sprite.position = {
+                    x: 20000, y: 20000.
+                }
+            }
+        }, 16);
+        // this.collider = null;
+
+        // clearInterval(this.intervalId); 
+    }
     willCollide(position) {
         for (let i = 0; i < this.boundaries.length; i++) {
             const boundary = this.boundaries[i];

@@ -495,30 +495,32 @@ function drawGzimos () {
         boundary.draw();
     });
 
-
-    // Fox Collision
-    ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
-    ctx.fillRect(
-        fox01.collider.position.x, 
-        fox01.collider.position.y, 
-        fox01.collider.width, 
-        fox01.collider.height);
-    // Fox Pivot 
-    ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
-    ctx.fillRect(
-        fox01.sprite.position.x, 
-        fox01.sprite.position.y,
-        10,
-        10);
-
-    // Fox Triggers
-    for(let trigger of fox01.triggers) {
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    if(fox01.properties.hp > 0) {
+        // Fox Collision
+        ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
         ctx.fillRect(
-            trigger.x, 
-            trigger.y,
-            fox01.collider.width,
+            fox01.collider.position.x, 
+            fox01.collider.position.y, 
+            fox01.collider.width, 
             fox01.collider.height);
+        // Fox Pivot 
+        ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+        ctx.fillRect(
+            fox01.sprite.position.x, 
+            fox01.sprite.position.y,
+            10,
+            10);
+    
+        // Fox Triggers
+        for(let trigger of fox01.triggers) {
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+            ctx.fillRect(
+                trigger.x, 
+                trigger.y,
+                fox01.collider.width,
+                fox01.collider.height);
+        }
+
     }
         
 
@@ -587,6 +589,10 @@ function toOrderCharacters () {
 
     ];
     let wasPlayerDrawn = false;
+    
+    // if(fox01.properties.hp <= 0) {
+    //     characters.splice(0, 1);
+    // }
 
     for (let character of characters) {
         if(!wasPlayerDrawn && collisionDetection(playerSprite, character) && player.sprite.position.y - 10 < character.position.y){
@@ -622,7 +628,10 @@ function animate () {
 
 
     background.draw();
-
+    
+    if(fox01.properties.hp > 0) {
+        fox01.detectPlayer(player);
+    }
     fox01.collider.updateCollider()
 
     
@@ -641,28 +650,13 @@ function animate () {
         }
     }
 
-    // ancient.draw(); 
-    // master.draw();
-    // farmer.draw();
-    
- 
-    // fox01.draw();
-    // if(currentAnimationNumber === 2) {
-    //     atackEffect.draw();
-    //     toOrderCharacters();
-    //     // player.draw();
-    // } else {
-    //     toOrderCharacters();
-    //     // player.draw();
-    //     atackEffect.draw();
-    // }
+
     foreground.draw();
     hud.draw();
 
     if(document.getElementById('gzimos').checked){
         drawGzimos ();
     }
-    fox01.detectPlayer(player);
     
     
     let moving = true;
