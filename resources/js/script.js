@@ -36,14 +36,6 @@ if(!audio.Map.playing()){
 });
 
 
-// //Add batalha com inimigo aqui
-// audio.Map.stop();
-// audio.InitBattle.play();
-// battle.initiated = true
-// //Add configuração de gameOver
-// audio.GameOver.play();
-
-
 const collisionsMap = [];
 for (let i = 0; i < collisions.length; i+=70) {
     collisionsMap.push(collisions.slice(i, 70 + i));
@@ -132,10 +124,8 @@ const foreground = new Sprite({
     opacity: 1
 });
 
-
 const playerImage = new Image();
 playerImage.src = './resources/assets/player/idle/down (3x).png';
-let playerHp = 3;
 const playerSprite = new Sprite({
     animation: new Animation ({
         hasAnimations: true,
@@ -188,6 +178,42 @@ const playerSprite = new Sprite({
     opacity: 1,
     ctx: ctx
 });
+
+
+
+const hudImage = new Image();
+hudImage.src = './resources/assets/hud/hp 00.png';
+const hud = new Sprite({
+    animation: new Animation({
+        hasAnimations: false,
+        sources: {
+            idle: {
+                paths: {
+                    0: './resources/assets/hud/hp 03.png',
+                    1: './resources/assets/hud/hp 02.png',
+                    2: './resources/assets/hud/hp 01.png',
+                    3: './resources/assets/hud/hp 00.png',
+                },
+                frameCount: 1
+             },
+        },  
+        frameRate: 5,
+        image: hudImage,
+        isPlaying: false
+    }), 
+    position: {
+        x: 0,
+        y: 0
+    },
+    width: hudImage.width,
+    ctx: ctx,
+    opacity: 1  
+});
+
+hud.animation.setAnimation('idle', 3);
+
+
+
 const playerProperties = new CharacterProperty({
     hp: 3, 
     damage: 1, 
@@ -196,6 +222,7 @@ const playerProperties = new CharacterProperty({
 const player = new Player({
     sprite: playerSprite,
     properties: playerProperties,
+    hud: hud,
     collider: new BoxCollider({
         offset: {
             x: 25,
@@ -205,6 +232,7 @@ const player = new Player({
     }),
     boundaries: boundaries
 });
+
 
 const atackEffectImage = new Image();
 atackEffectImage.src = './resources/assets/player/atack-effect/down.png';
@@ -236,6 +264,8 @@ const atackEffect = new Sprite({
     }
     
 });
+
+
 
 const fox01Image = new Image();
 fox01Image.src = './resources/assets/enemies/fox/idle/down.png';
@@ -388,37 +418,6 @@ const farmer = new Sprite({
     opacity: 1,
     ctx: ctx
 });
-let playerLife = 3;
-const hudImage = new Image();
-hudImage.src = './resources/assets/hud/hp 00.png';
-const hud = new Sprite({
-    animation: new Animation({
-        hasAnimations: false,
-        sources: {
-            idle: {
-                paths: {
-                    0: './resources/assets/hud/hp 03.png',
-                    1: './resources/assets/hud/hp 02.png',
-                    2: './resources/assets/hud/hp 01.png',
-                    3: './resources/assets/hud/hp 00.png',
-                },
-                frameCount: 1
-             },
-        },  
-        frameRate: 5,
-        image: hudImage,
-        isPlaying: false
-    }), 
-    position: {
-        x: 0,
-        y: 0
-    },
-    width: hudImage.width,
-    ctx: ctx,
-    opacity: 1  
-});
-
-hud.animation.setAnimation('idle', 3);
 
 const keys = {
     w: {
@@ -541,6 +540,7 @@ function toOrderCharacters () {
         },
 
     ];
+    
     let wasPlayerDrawn = false;
 
     for (let character of characters) {
@@ -602,8 +602,11 @@ function animate () {
             player.sprite.animation.isPlaying = true;
             player.sprite.animation.setAnimation('melee', playerDirection);
             player.isAttacking = true;
+            audio.Attack1.play();
+            audio.Attack2.play();
             player.canAttack = false; 
             
+
             atackEffect.animation.setAnimation('idle', playerDirection);
             atackEffect.opacity = 1;
             let atackTrigger = {
@@ -634,6 +637,7 @@ function animate () {
                         x: player.sprite.position.x - 57,
                         y: player.sprite.position.y - 11
                     };
+                    
                     atackTrigger = {
                         position: {
                             x: atackEffect.position.x + 10,
@@ -848,13 +852,6 @@ window.addEventListener('keyup', (e) => {
 
 });
 
-function applyDamage(){
-    if(playerLife > 0) {
-        playerLife--; 
-        hud.animation.setAnimation('idle', playerLife); 
-    }else{
-        console.log('Game Over!'); 
-    }
-}
+
 
 
