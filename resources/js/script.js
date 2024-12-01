@@ -10,6 +10,9 @@ canvas.width = 1024;
 canvas.height = 576;
 const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false; // Não embaça/borra os pixels 
+let running = true;
+let animationFrameId;
+
 
 
 // Audios
@@ -170,9 +173,9 @@ const playerSprite = new Sprite({
         frameRate: 5,
         aditionalConditions: (animation) => {
             
-            if(animation.currentSource === animation.sources['melee'])
-                animation.isPlaying = false;
-            else 
+            // if(animation.currentSource === animation.sources['melee'])
+            //     animation.isPlaying = false;
+            // else 
                 animation.frameNumber = 0;
 
         }
@@ -387,8 +390,6 @@ const farmer = new Sprite({
 
 
 
-
-
 const keys = {
     w: {
         pressed: false
@@ -412,7 +413,6 @@ const movables = [background, ...boundaries, foreground, ancient, fox01Sprite, m
 
 
 let playerDirection = 0;
-
 
 function drawGzimos () {
     
@@ -540,7 +540,9 @@ function toOrderCharacters () {
 }
 
 function animate () {
-    window.requestAnimationFrame(animate);
+    if(running) {
+        animationFrameId = window.requestAnimationFrame(animate);
+    }
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
 
@@ -563,47 +565,99 @@ function animate () {
         player.sprite.animation.setAnimation('idle', playerDirection);
     }
 
-    if (keys.space.pressed && !player.sprite.animation.isPlaying) {
-        player.sprite.animation.isPlaying = true;
-        player.sprite.animation.setAnimation('melee', playerDirection);
-        
-        atackEffect.animation.setAnimation('idle', playerDirection);
-        atackEffect.opacity = 1;
-
-        switch(playerDirection) {
-            case 0:
-                atackEffect.position = {
-                    x: player.sprite.position.x - 18,
-                    y: player.sprite.position.y + 35
-                };
-            break;
-            case 1: 
-                atackEffect.position = {
-                    x: player.sprite.position.x - 57,
-                    y: player.sprite.position.y - 11
-                };
-            break;
-            case 2: 
-                atackEffect.position = {
-                    x: player.sprite.position.x ,
-                    y: player.sprite.position.y - 40
-                };
-            break;
-            case 3: 
-                atackEffect.position = {
-                    x: player.sprite.position.x + 37,
-                    y: player.sprite.position.y - 11
-                };
-            break;
+    if (player.canAttack && keys.space.pressed && !player.sprite.animation.isPlaying) {
+        if(!player.isAttacking && player.sprite.animation.currentSource !== player.sprite.animation.sources['melee']) {
+            player.sprite.animation.isPlaying = true;
+            player.sprite.animation.setAnimation('melee', playerDirection);
+            player.isAttacking = true;
+            player.canAttack = false; 
+            
+            atackEffect.animation.setAnimation('idle', playerDirection);
+            atackEffect.opacity = 1;
+            let atackTrigger = {
+                position: {
+                    x: atackEffect.position.x + atackEffect.width/2,
+                    y: atackEffect.position.y
+                },
+                width: atackEffect.width,
+                height: atackEffect.height
+            };
+            switch(playerDirection) {
+                case 0:
+                    atackEffect.position = {
+                        x: player.sprite.position.x - 18,
+                        y: player.sprite.position.y + 35
+                    };
+                    atackTrigger = {
+                        position: {
+                            x: atackEffect.position.x + (atackEffect.width/4) + 10,
+                            y: atackEffect.position.y + 20
+                        },
+                        width: (atackEffect.width/2) - 20,
+                        height: atackEffect.height - 30
+                    };
+                break;
+                case 1: 
+                    atackEffect.position = {
+                        x: player.sprite.position.x - 57,
+                        y: player.sprite.position.y - 11
+                    };
+                    atackTrigger = {
+                        position: {
+                            x: atackEffect.position.x + 10,
+                            y: atackEffect.position.y + (atackEffect.height/4) + 10
+                        },
+                        width: atackEffect.width - 30,
+                        height: (atackEffect.height/2) - 20
+                    };
+                break;
+                case 2: 
+                    atackEffect.position = {
+                        x: player.sprite.position.x ,
+                        y: player.sprite.position.y - 40
+                    };
+                    atackTrigger = {
+                        position: {
+                            x: atackEffect.position.x + (atackEffect.width/4) + 10,
+                            y: atackEffect.position.y + 20
+                        },
+                        width: (atackEffect.width/2) - 20,
+                        height: atackEffect.height - 30
+                    };
+                break;
+                case 3: 
+                    atackEffect.position = {
+                        x: player.sprite.position.x + 37,
+                        y: player.sprite.position.y - 11
+                    };
+                    atackTrigger = {
+                        position: {
+                            x: atackEffect.position.x + 10,
+                            y: atackEffect.position.y + (atackEffect.height/4) + 10
+                        },
+                        width: atackEffect.width - 30,
+                        height: (atackEffect.height/2) - 20
+                    };
+                break;
+            }
+    
+            if(collisionDetection(atackTrigger, fox01.collider)) {
+                let direction = playerDirection;
+                fox01.pushEnemy(fox01.possibleMoves[direction + 1], 100, 3);
+                
+    
+            }
+    
+            setTimeout(() => {
+                player.sprite.animation.isPlaying = false;
+                player.isAttacking = false;
+                player.sprite.animation.setAnimation('idle', playerDirection);
+                atackEffect.opacity = 0;
+            }, player.sprite.animation.frameRate * player.sprite.animation.currentSource.frameCount * 16.67);
+            
+            moving = false;
         }
-
-        setTimeout(() => {
-            player.sprite.animation.isPlaying = false;
-            player.sprite.animation.setAnimation('idle', playerDirection);
-            atackEffect.opacity = 0;
-        }, player.sprite.animation.frameRate * player.sprite.animation.currentSource.frameCount * 16.67);
         
-        moving = false;
     }
     
     if (player.sprite.animation.currentSource !== player.sprite.animation.sources.melee) {
@@ -686,6 +740,19 @@ function animate () {
 }
 animate();
 
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // Pausa a animação quando a aba não está visível
+        running = false;
+        cancelAnimationFrame(animationFrameId);
+        console.log('Canvas pausado.');
+    } else {
+        // Retoma a animação quando a aba volta a ser visível
+        running = true;
+        animate();
+        console.log('Canvas retomado.');
+    }
+});
 
 // KEYMAPPING
 let lastkey = '';
@@ -741,6 +808,7 @@ window.addEventListener('keyup', (e) => {
         break;
         case ' ':
             keys.space.pressed = false;
+            player.canAttack = true;
             break;
     }
 

@@ -11,6 +11,8 @@ export class Player {
         this.properties = properties;
         this.collider = collider;
         this.boundaries = boundaries;
+        this.isAttacking = false;
+        this.canAttack = true; // Para atacar, é preciso soltar e pressionar o espaço de novo
     }
     canMove (position) {
         for (let i = 0; i < this.boundaries.length; i++) {
@@ -95,13 +97,10 @@ export class Enemy {
                         height: this.collider.height
                     }
                 ));
-            if(this.isDetectingPlayer && !this.isAttacking) {
-                // this.isDetectingPlayer = true;
-                console.log(`OnTrigger: ${i}`);
+            if(this.isDetectingPlayer && !this.isPreAttacking && !this.isAttacking) {
                 let timeToAtack = Math.floor(Math.random() * (1500 - 500 + 1)) + 500;
-                let timeToFace = 400 - Math.floor(Math.random() * (400 - 200));
-                
-                // this.sprite.animation.setAnimation('idle', i);
+                let timeToFace = 400 - Math.floor(Math.random() * (400 - 200));                
+
                 setTimeout(() => { 
                     this.targetDir = i + 1;
                     this.setMovementAnimation();
@@ -114,7 +113,6 @@ export class Enemy {
                 }, 400);
             
                 setTimeout(() => {
-                    
                     if(!this.isAttacking) {
                         this.isAttacking = collisionDetection(player.collider, {
                             position: this.triggers[i],
@@ -130,10 +128,10 @@ export class Enemy {
                     } 
                 }, timeToAtack);
 
-                // setTimeout(() => {this.isAttacking = false}, 1500);
             }
         }
     }
+    
     changeDirection () {
         let randomInterval = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
         let executionCount = 0; 
@@ -165,7 +163,63 @@ export class Enemy {
         }
     }
 
+    pushEnemy(pushDirection, pushForce, pushStep) {
+        let distanceMoved = 0;
+        const maxDistance = pushForce; // Máxima distância que o inimigo deve ser empurrado
+        
+    
+        // Intervalo para deslocar o inimigo gradualmente
+        const pushInterval = setInterval(() => {
+            const newPosition = {
+                x: pushDirection.x * pushStep,
+                y: pushDirection.y * pushStep
+            };
+    
+            if (!this.willCollide(
+                    {
+                        x: this.collider.position.x + newPosition.x,
+                        y: this.collider.position.y + newPosition.y
+                    }
+                )) {
+                this.sprite.position.x += newPosition.x;
+                this.sprite.position.y += newPosition.y;
+                // this.collider.position.x = newPosition.x;
+                // this.collider.position.y = newPosition.y;
+                distanceMoved += pushStep;
+    
+                if (distanceMoved >= maxDistance) {
+                    clearInterval(pushInterval); // Parar o empurrão após atingir a distância máxima
+                }
+            } else {
+                clearInterval(pushInterval); // Parar o empurrão ao encontrar uma colisão
+            }
+        }, 16); // Atualização suave a cada 16ms (~60 FPS)
+    }
 
+    willCollide(position) {
+        for (let i = 0; i < this.boundaries.length; i++) {
+            const boundary = this.boundaries[i];
+    
+            if (collisionDetection(
+                {
+                    position: position,
+                    width: this.collider.width,
+                    height: this.collider.height
+                },
+                {
+                    ...boundary, 
+                    position: {
+                        x: boundary.position.x,
+                        y: boundary.position.y
+                    }
+                })) 
+            {
+                return true; 
+            }
+    
+        }
+        return false;
+    }
     canMove () {
         for (let i = 0; i < this.boundaries.length; i++) {
             const boundary = this.boundaries[i];
