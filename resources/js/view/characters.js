@@ -7,14 +7,28 @@ export class CharacterProperty {
     }
 }
 export class Player {
-    constructor ({sprite, properties, collider, boundaries}) {
+    constructor ({sprite, properties, collider, boundaries, hud}) {
         this.sprite = sprite;
         this.properties = properties;
         this.collider = collider;
         this.boundaries = boundaries;
         this.isAttacking = false;
         this.canAttack = true; // Para atacar, é preciso soltar e pressionar o espaço de novo
+        this.hud = hud;
     }
+
+
+    applyDamage() {
+        if (this.properties.hp > 0) {
+           this.properties.hp--; 
+           this.hud.animation.setAnimation('idle', this.properties.hp); 
+        } else {
+            console.log('Game Over!'); 
+            audio.GameOver.play();
+
+        }
+    }
+
     canMove (position) {
         for (let i = 0; i < this.boundaries.length; i++) {
             const boundary = this.boundaries[i];
@@ -34,6 +48,7 @@ export class Player {
         return true;
     }
 }
+
 export class Enemy {
     constructor ({sprite, properties, possibleMoves, boundaries, triggersOffset, collider}) {
         this.sprite = sprite;
@@ -128,6 +143,13 @@ export class Enemy {
                         if(this.isAttacking) {
                             this.isPreAttacking = false;
                             this.sprite.animation.setAnimation('melee', i);
+                           
+                            if(collisionDetection(player.collider, {
+                                position: this.triggers[i],
+                                width: this.collider.width, 
+                                height: this.collider.height
+                            })) 
+                            player.applyDamage();
                             setTimeout(() => {this.isAttacking = false}, 500);
                         } else {
                             this.isPreAttacking = false;
