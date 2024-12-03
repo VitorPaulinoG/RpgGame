@@ -341,7 +341,11 @@ const fox01 = new Enemy({
             y: 25
         },
         sprite: fox01Sprite
-    })
+    }),
+    intervalToChangeDirection: {
+        max: 5000,
+        min: 2000
+    }
 });
 
 const ancientImage = new Image();

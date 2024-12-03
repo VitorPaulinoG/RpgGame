@@ -15,18 +15,51 @@ export class Player {
         this.isAttacking = false;
         this.canAttack = true; // Para atacar, é preciso soltar e pressionar o espaço de novo
         this.hud = hud;
+        this.isTakingDamage = false;
     }
 
 
-    applyDamage() {
-        if (this.properties.hp > 0) {
-           this.properties.hp--; 
-           this.hud.animation.setAnimation('idle', this.properties.hp); 
-        } else {
-            console.log('Game Over!'); 
-            audio.GameOver.play();
+    applyDamage(enemy) {
+        
+        if (!this.isTakingDamage) {
+            if(this.properties.hp > 0) {
+                this.properties.hp -= enemy.properties.damage; 
+                console.log(`isDetectingPlayer:${enemy.isDetectingPlayer}`);
+                console.log(`isAttacking:${enemy.isAttacking}`);
+                console.log(`isPreAttacking:${enemy.isPreAttacking}`);
+                console.log(`isTakingDamage:${enemy.isTakingDamage}`);
 
-        }
+                this.hud.animation.setAnimation('idle', this.properties.hp); 
+                
+                this.isTakingDamage = true;
+                let i = 0;
+                let maxCount = 5;
+                let interval = setInterval(() => {
+                    
+                    
+                    setTimeout(() => {
+                        this.sprite.filter = "opacity(0)";   
+                    }, 100);
+                    
+                    setTimeout(() => {
+                        this.sprite.filter = "none";
+                    }, 200);
+
+                    if(i < maxCount) {  
+                        i++;
+                    } else {
+                        this.isTakingDamage = false;
+                        clearInterval(interval);
+                    }
+                    
+                }, 300);
+
+                if(this.properties.hp <= 0) {
+                    console.log('Game Over!'); 
+                    audio.GameOver.play();
+                }
+            } 
+        } 
     }
 
     canMove (position) {
@@ -50,7 +83,7 @@ export class Player {
 }
 
 export class Enemy {
-    constructor ({sprite, properties, possibleMoves, boundaries, triggersOffset, collider}) {
+    constructor ({sprite, properties, possibleMoves, boundaries, triggersOffset, collider, intervalToChangeDirection = {max: 5000, min: 2000}}) {
         this.sprite = sprite;
         this.properties = properties;
         this.forbiddenDir = -1;
@@ -69,11 +102,13 @@ export class Enemy {
         this.isAttacking = false;
         this.isPreAttacking = false;
         this.isDetectingPlayer = false;
+        this.isTakingDamage = false;
+        this.intervalToChangeDirection = intervalToChangeDirection;
     }
 
     updateTriggers () {
         if(!this.properties.isAlive) 
-            return
+            return;
         this.triggers = 
             [
                 {
@@ -96,7 +131,7 @@ export class Enemy {
     }
     moveEnemy () {
         if(!this.properties.isAlive) 
-            return
+            return;
         setInterval(() => {
             this.forbiddenDir = this.canMove();
             if(!this.isPreAttacking && !this.isAttacking && this.targetDir !== this.forbiddenDir) {
@@ -112,7 +147,7 @@ export class Enemy {
         this.updateTriggers();
         for (let i = 0; i < this.triggers.length; i++) {
             this.isDetectingPlayer = 
-                (!this.isAttacking && !this.isDetectingPlayer && collisionDetection(player.collider, 
+                (!this.isAttacking && !this.isDetectingPlayer && !this.isTakingDamage && collisionDetection(player.collider, 
                     {
                         position: this.triggers[i],
                         width: this.collider.width, 
@@ -122,7 +157,7 @@ export class Enemy {
             if(this.isDetectingPlayer && !this.isPreAttacking && !this.isAttacking) {
                 let timeToAtack = Math.floor(Math.random() * (1500 - 500 + 1)) + 500;
                 let timeToFace = 400 - Math.floor(Math.random() * (400 - 200));                
-
+                
                 setTimeout(() => { 
                     this.targetDir = i + 1;
                     this.setMovementAnimation();
@@ -132,6 +167,7 @@ export class Enemy {
                     this.isPreAttacking = true;
                     this.targetDir = 0;
                     this.setMovementAnimation();
+                    
                 }, 400);
             
                 setTimeout(() => {
@@ -140,19 +176,39 @@ export class Enemy {
                             position: this.triggers[i],
                             width: this.collider.width, 
                             height: this.collider.height});
-                        if(this.isAttacking) {
+                        if(this.isAttacking && !this.isTakingDamage) {
                             this.isPreAttacking = false;
                             this.sprite.animation.setAnimation('melee', i);
-                           
-                            if(collisionDetection(player.collider, {
-                                position: this.triggers[i],
-                                width: this.collider.width, 
-                                height: this.collider.height
-                            })) 
-                            player.applyDamage();
-                            setTimeout(() => {this.isAttacking = false}, 500);
+                            
+                            let interval = setInterval(() => {
+                                if(this.sprite.animation.frameNumber >= 1) {
+                                    if(collisionDetection(player.collider, {
+                                        position: this.triggers[i],
+                                        width: this.collider.width, 
+                                        height: this.collider.height
+                                    })) {
+                                        if(!this.isTakingDamage && this.properties.isAlive) {
+                                            player.applyDamage(this);
+
+                                            console.log(`isAlive: ${this.properties.isAlive}`);
+                                            console.log(`properties.hp: ${this.properties.hp}`);
+                                            console.log(`isTakingDamage: ${this.isTakingDamage}`);
+                                            console.log(`isDetectingPlayer: ${this.isDetectingPlayer}`);
+                                        }
+                                        
+                                    }
+                                    clearInterval(interval);
+                                }
+                            }, 100);
+
+
+                            setTimeout(() => {
+                                this.isAttacking = false;
+                            }, 500);
                         } else {
                             this.isPreAttacking = false;
+                            this.isAttacking = false;
+                            return;
                         }
                     } 
                 }, timeToAtack);
@@ -163,22 +219,25 @@ export class Enemy {
     
     changeDirection () {
         if(!this.properties.isAlive) 
-            return
+            return;
+        
         let randomInterval = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
         let executionCount = 0; 
         const maxExecutionsBeforeChange = 5; 
         this.intervalId = setInterval(() => {
-            do {
-                this.targetDir = Math.floor(Math.random() * this.possibleMoves.length);
-            }while(this.targetDir  === this.forbiddenDir);
-
-            this.setMovementAnimation();
-            executionCount++;
-
-            if (executionCount >= maxExecutionsBeforeChange) {
-                clearInterval(this.intervalId); 
-                executionCount = 0;  
-                this.changeDirection();  
+            if(!this.isAttacking) {    
+                do {
+                    this.targetDir = Math.floor(Math.random() * this.possibleMoves.length);
+                }while(this.targetDir  === this.forbiddenDir);
+        
+                this.setMovementAnimation();
+                executionCount++;
+        
+                if (executionCount >= maxExecutionsBeforeChange) {
+                    clearInterval(this.intervalId); 
+                    executionCount = 0;  
+                    this.changeDirection();  
+                }
             }
         
         }, randomInterval);
@@ -187,7 +246,7 @@ export class Enemy {
 
     setMovementAnimation () {
         if(!this.properties.isAlive) 
-            return
+            return;
         if(this.targetDir === 0)
             this.sprite.animation.setAnimation('idle', this.direction);
         else {
@@ -198,46 +257,53 @@ export class Enemy {
 
     pushEnemy(pushDirection, pushForce, pushStep) {
         if(!this.properties.isAlive) 
-            return
+            return;
         let distanceMoved = 0;
         this.properties.hp--;
         const maxDistance = pushForce; // Máxima distância que o inimigo deve ser empurrado
         
-    
+        
         // Intervalo para deslocar o inimigo gradualmente
         this.sprite.filter = "saturate(1.2) hue-rotate(-30deg)";
-        const pushInterval = setInterval(() => {
-            const newPosition = {
-                x: pushDirection.x * pushStep,
-                y: pushDirection.y * pushStep
-            };
-            if (!this.willCollide(
-                    {
-                        x: this.collider.position.x + newPosition.x,
-                        y: this.collider.position.y + newPosition.y
+        if(!this.isTakingDamage) {
+            this.isTakingDamage = true;
+
+            const pushInterval = setInterval(() => {
+                const newPosition = {
+                    x: pushDirection.x * pushStep,
+                    y: pushDirection.y * pushStep
+                };
+                if (!this.willCollide(
+                        {
+                            x: this.collider.position.x + newPosition.x,
+                            y: this.collider.position.y + newPosition.y
+                        }
+                    )) {
+                    this.sprite.position.x += newPosition.x;
+                    this.sprite.position.y += newPosition.y;
+                    // this.collider.position.x = newPosition.x;
+                    // this.collider.position.y = newPosition.y;
+                    distanceMoved += pushStep;
+        
+                    if (distanceMoved >= maxDistance) {
+                        clearInterval(pushInterval); // Parar o empurrão após atingir a distância máxima
                     }
-                )) {
-                this.sprite.position.x += newPosition.x;
-                this.sprite.position.y += newPosition.y;
-                // this.collider.position.x = newPosition.x;
-                // this.collider.position.y = newPosition.y;
-                distanceMoved += pushStep;
-    
-                if (distanceMoved >= maxDistance) {
-                    clearInterval(pushInterval); // Parar o empurrão após atingir a distância máxima
+                } else {
+                    clearInterval(pushInterval); // Parar o empurrão ao encontrar uma colisão
                 }
-            } else {
-                clearInterval(pushInterval); // Parar o empurrão ao encontrar uma colisão
-            }
-            
-        }, 16); 
-        setTimeout(() => {
-            this.sprite.filter = "none";
-            if(this.properties.hp <= 0) {
-                console.log('O inimigo morreu');
-                this.removeEnemy();
-            }
-        }, 10 * maxDistance);
+                setTimeout(() => {
+                    this.sprite.filter = "none";
+                    if(this.properties.hp <= 0) {
+                        this.properties.isAlive = false;
+                        console.log('O inimigo morreu');
+                        this.removeEnemy();
+                    }
+                    setTimeout(() => this.isTakingDamage = false, 600);
+                }, 10 * maxDistance);
+                
+            }, 16); 
+        }
+        
         
     }
 
@@ -247,13 +313,15 @@ export class Enemy {
         let opacity = 100;
         
         let interval = setInterval(() => {
-            opacity -= 20;
-            this.sprite.filter = `opacity(${opacity/100})`; // Exemplo para esconder o sprite
+            opacity -= 30;
             if(opacity <= 0) {
-                clearInterval(interval);
                 this.sprite.position = {
                     x: 20000, y: 20000.
                 }
+                clearInterval(interval);
+            } else {
+
+                this.sprite.filter = `opacity(${opacity/100})`; // Exemplo para esconder o sprite
             }
         }, 16);
         // this.collider = null;
