@@ -170,7 +170,7 @@ export class Enemy {
                     
                 }, 400);
             
-                setTimeout(() => {
+                let meleeInterval = setTimeout(() => {
                     if(!this.isAttacking) {
                         this.isAttacking = collisionDetection(player.collider, {
                             position: this.triggers[i],
@@ -180,7 +180,7 @@ export class Enemy {
                             this.isPreAttacking = false;
                             this.sprite.animation.setAnimation('melee', i);
                             
-                            let interval = setInterval(() => {
+                            let hitInterval = setInterval(() => {
                                 if(this.sprite.animation.frameNumber >= 1) {
                                     if(collisionDetection(player.collider, {
                                         position: this.triggers[i],
@@ -197,7 +197,7 @@ export class Enemy {
                                         }
                                         
                                     }
-                                    clearInterval(interval);
+                                    clearInterval(hitInterval);
                                 }
                             }, 100);
 
@@ -210,7 +210,10 @@ export class Enemy {
                             this.isAttacking = false;
                             return;
                         }
-                    } 
+                    } else {
+                        clearInterval(meleeInterval);
+                        return;
+                    }
                 }, timeToAtack);
 
             }

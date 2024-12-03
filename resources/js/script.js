@@ -305,13 +305,12 @@ const fox01Sprite = new Sprite ({
         frameRate: 10,
         image: fox01Image,
         isPlaying: true,
-        // aditionalConditions: (animation) => {
-        //     if(animation.currentSource === animation.sources['melee'])
-        //         if(animation.frameNumber === animation.sources['melee'].frameCount)
-        //             animation.setAnimation('idle', animation.currentSource.currentPath);
-        //     else 
-        //         animation.frameNumber = 0;
-        // }
+        aditionalConditions: (animation) => {
+            if(!(animation.currentSource === animation.sources['melee'] && 
+                animation.frameNumber === animation.sources['melee'].frameCount - 1)) {
+                animation.frameNumber = 0;
+            } 
+        }
     }),
     position: {
         x: 760, 
@@ -621,9 +620,8 @@ function animate () {
 
 
     
-    // Verifica se há um diálogo e se a tecla 'q' foi pressionada
     if (isDialogDisplaying) {
-        const currentDialogueText = getCurrentDialogue(player.sprite); // Atualizando o diálogo atual
+        const currentDialogueText = getCurrentDialogue(player.sprite); 
         if(currentDialogueText) {
             const currentDialogue = dialogues.find(d => d.text === currentDialogueText);
             if (currentDialogue) {
