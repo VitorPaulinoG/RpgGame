@@ -1,8 +1,7 @@
 import { Sprite } from './view/Sprite.js';
 import { Animation } from './view/Animation.js';
 import { Dialogue } from './view/Dialogue.js';
-
-import { Boundary } from './data/Boundary.js'
+import { Boundary } from './data/Boundary.js';
 import { Enemy, Player, CharacterProperty } from './view/characters.js';
 import { BoxCollider } from './data/BoxCollider.js';
 
@@ -10,11 +9,10 @@ const canvas = document.querySelector('canvas');
 canvas.width = 1024;
 canvas.height = 576;
 const ctx = canvas.getContext('2d');
+
 ctx.imageSmoothingEnabled = false; // Não embaça/borra os pixels 
 let running = true;
 let animationFrameId;
-
-
 
 // Audios
 let audioInitialized = false;
@@ -206,7 +204,6 @@ const hud = new Sprite({
         x: 0,
         y: 0
     },
-    width: hudImage.width,
     ctx: ctx,
     opacity: 1  
 });
@@ -424,7 +421,8 @@ const farmer = new Sprite({
     opacity: 1,
     ctx: ctx
 });
-let playerLife = 3;
+
+
 
 const dialogues = [
     new Dialogue(ancient, "Olá, viajante! Você quer mais vidas?"),
@@ -463,7 +461,7 @@ const keys = {
 }
 
 const movables = [background, ...boundaries, foreground, ancient, fox01Sprite, master, farmer];
-
+let effects = [];
 
 
 let playerDirection = 0;
@@ -570,9 +568,6 @@ function toOrderCharacters () {
     
     let wasPlayerDrawn = false;
     
-    // if(fox01.properties.hp <= 0) {
-    //     characters.splice(0, 1);
-    // }
 
     for (let character of characters) {
         if(!wasPlayerDrawn && collisionDetection(playerSprite, character) && player.sprite.position.y - 10 < character.position.y){
@@ -615,7 +610,6 @@ function animate () {
     fox01.collider.updateCollider()
 
     
-    
     toOrderCharacters();
 
 
@@ -634,6 +628,14 @@ function animate () {
         
     }
 
+    for(let effect of effects) {
+        effect.sprite.position = {
+            x: effect.enemy.sprite.position.x + effect.offset.x,
+            y: effect.enemy.sprite.position.y + effect.offset.y
+        }
+        effect.sprite.draw(); 
+    }
+    /// for enemy of enemies
 
     foreground.draw();
     hud.draw();
@@ -730,7 +732,8 @@ function animate () {
     
             if(collisionDetection(atackTrigger, fox01.collider)) {
                 let direction = playerDirection;
-                fox01.pushEnemy(fox01.possibleMoves[direction + 1], 100, 3);
+                if(!fox01.isTakingDamage)
+                    fox01.pushEnemy(fox01.possibleMoves[direction + 1], 100, 3);
                 
     
             }
@@ -825,9 +828,20 @@ function animate () {
     }
 
 }
+
+
+// backgroundImage.onload = () => {console.log(backgroundImage.width)};
+// foregroundImage.onload = () => {console.log(foregroundImage.width)};
+// hudImage.onload = () => {console.log(hudImage.width)};
+// playerImage.onload = () => {console.log(playerImage.width)};
+// atackEffectImage.onload = () => {console.log(atackEffectImage.width)};
+// fox01Image.onload = () => {console.log(fox01Image.width)};
+// masterImage.onload = () => {console.log(masterImage.width)};
+// ancientImage.onload = () => {console.log(ancientImage.width)};
+// farmerImage.onload = () => {console.log(farmerImage.width)};
 animate();
 
-document.addEventListener('visibilitychange', () => {
+window.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         // Pausa a animação quando a aba não está visível
         running = false;
@@ -909,6 +923,129 @@ window.addEventListener('keyup', (e) => {
 
 });
 
+window.addEventListener('hit', (e) => {
+    let enemy = e.detail.enemy;
+    let index = effects.length;
+    const effect = {
+        id: index,
+        sprite: new Sprite({
+            animation: new Animation({
+                hasAnimations: true,
+                sources: {
+                    idle: {
+                        paths: {
+                            0: './resources/assets/effects/hit-effect (33x33).png',
+                        },
+                        frameCount: 5
+                    } 
+                },
+                frameRate: 10,
+                image: new Image(),
+                isPlaying: true
+            }),
+            ctx: ctx,
+            width: 99,
+            height: 99,
+            opacity: 1,
+            position: enemy.sprite.position 
+        }),
+        offset: {
+            x: enemy.sprite.width/2 - (99/2),
+            y: 0
+        },
+        enemy: enemy
+    };
+
+    effects.push(effect);
+
+    setTimeout(() => {
+        effects.splice(effects.findIndex(x => x.enemy === enemy), 1);
+    }, 500);
+
+});
+window.addEventListener('final-hit', (e) => {
+    let enemy = e.detail.enemy;
+    const effect = {
+        sprite: new Sprite({
+            animation: new Animation({
+                hasAnimations: true,
+                sources: {
+                    idle: {
+                        paths: {
+                            0: './resources/assets/effects/final-hit-effect (33x33).png',
+                        },
+                        frameCount: 13
+                    } 
+                },
+                frameRate: 5,
+                image: new Image(),
+                isPlaying: true
+            }),
+            ctx: ctx,
+            width: 99,
+            height: 99,
+            opacity: 1,
+            position: enemy.sprite.position 
+        }),
+        offset: {
+            x: enemy.sprite.width/2 - (99/2),
+            y: 0
+        },
+        enemy: enemy
+    };
+
+    effects.push(effect);
+    enemy.removeEnemy();
+    setTimeout(() => {
+        effects.splice(effects.findIndex(x => x.enemy === enemy), 1);
+        window.dispatchEvent(new CustomEvent('defeated', {
+            detail: {
+                enemy: enemy
+            }
+        }));
+    }, 1100);
+});
+
+window.addEventListener('defeated', (e) => {
+    let enemy = e.detail.enemy;
+    const effect = {
+        sprite: new Sprite({
+            animation: new Animation({
+                hasAnimations: true,
+                sources: {
+                    idle: {
+                        paths: {
+                            0: './resources/assets/effects/defeated-effect.png',
+                        },
+                        frameCount: 9
+                    } 
+                },
+                frameRate: 5,
+                image: new Image(),
+                isPlaying: true
+            }),
+            ctx: ctx,
+            width: 99,
+            height: 99,
+            opacity: 1,
+            position: enemy.sprite.position 
+        }),
+        offset: {
+            x: enemy.sprite.width/2 - (99/2),
+            y: 20
+        },
+        enemy: enemy
+    };
+
+    effects.push(effect);
+    setTimeout(() => {
+        effects.splice(effects.findIndex(x => x.enemy === enemy), 1);
+        enemy.sprite.position = {
+            x: 20000,
+            y: 0
+        };
+    }, 750);
+});
 
 
 
