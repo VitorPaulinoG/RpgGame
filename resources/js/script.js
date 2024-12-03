@@ -374,23 +374,6 @@ const ancient = new Sprite({
 });
 
 
-
-
-
-
-
-
-
-
-
-// function ancientCheck(player, ancient, distance) {
-//     const dx = player.position.x - ancient.position.x;
-//     const dy = player.position.y - ancient.position.y;
-//     return Math.sqrt(dx * dx + dy * dy) <= distance;
-// }
-
-
-
 const masterImage = new Image();
 masterImage.src = './resources/assets/npc/master/master.png';
 const master = new Sprite({
@@ -416,12 +399,6 @@ const master = new Sprite({
     ctx: ctx
 });
 
-
-// function masterCheck(player, master, distance) {
-//     const dx = player.position.x - master.position.x;
-//     const dy = player.position.y - master.position.y;
-//     return Math.sqrt(dx * dx + dy * dy) <= distance;
-// }
 
 
 const farmerImage = new Image();
@@ -455,7 +432,7 @@ const dialogues = [
     new Dialogue(master, "Você quer melhorar suas habilidades, viajante?"),
     new Dialogue(farmer, "Esses malditos monstros! Estão destruindo a vila!")
 ];
-
+let isDialogDisplaying = false;
 function getCurrentDialogue(player) {
     for (const dialogue of dialogues) {
         if (dialogue.verificarProximidadePlayer(player)) {
@@ -643,15 +620,20 @@ function animate () {
     toOrderCharacters();
 
 
-    const currentDialogueText = getCurrentDialogue(player.sprite); // Atualizando o diálogo atual
-
+    
     // Verifica se há um diálogo e se a tecla 'q' foi pressionada
-    if (currentDialogueText && keys.q.pressed) {
-        // Desenha o diálogo
-        const currentDialogue = dialogues.find(d => d.text === currentDialogueText);
-        if (currentDialogue) {
-            currentDialogue.drawDialogue(ctx, canvas);
+    if (isDialogDisplaying) {
+        const currentDialogueText = getCurrentDialogue(player.sprite); // Atualizando o diálogo atual
+        if(currentDialogueText) {
+            const currentDialogue = dialogues.find(d => d.text === currentDialogueText);
+            if (currentDialogue) {
+                currentDialogue.drawDialogue(ctx, canvas);
+            }
+
+        } else {
+            isDialogDisplaying = false;
         }
+        
     }
 
 
@@ -896,6 +878,7 @@ window.addEventListener('keydown', (e) => {
             break;
         case 'q':
             keys.q.pressed = true;
+            isDialogDisplaying = !isDialogDisplaying;
             break;
     }
 });

@@ -281,15 +281,13 @@ export class Enemy {
                     )) {
                     this.sprite.position.x += newPosition.x;
                     this.sprite.position.y += newPosition.y;
-                    // this.collider.position.x = newPosition.x;
-                    // this.collider.position.y = newPosition.y;
                     distanceMoved += pushStep;
         
                     if (distanceMoved >= maxDistance) {
-                        clearInterval(pushInterval); // Parar o empurrão após atingir a distância máxima
+                        clearInterval(pushInterval); 
                     }
                 } else {
-                    clearInterval(pushInterval); // Parar o empurrão ao encontrar uma colisão
+                    clearInterval(pushInterval); 
                 }
                 setTimeout(() => {
                     this.sprite.filter = "none";
