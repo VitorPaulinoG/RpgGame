@@ -90,6 +90,10 @@ atackEffectImage.src = './resources/assets/player/atack-effect/down.png';
 
 const fox01Image = new Image();
 fox01Image.src = './resources/assets/enemies/fox/idle/down.png';
+const fox02Image = new Image();
+fox02Image.src = './resources/assets/enemies/fox/idle/down.png';
+const fox03Image = new Image();
+fox03Image.src = './resources/assets/enemies/fox/idle/down.png';
 
 const ancientImage = new Image();
 ancientImage.src = './resources/assets/npc/ancient/ancient.png';
@@ -100,7 +104,7 @@ masterImage.src = './resources/assets/npc/master/master.png';
 const farmerImage = new Image();
 farmerImage.src = './resources/assets/npc/farmer/farmer.png';
 
-const imgs = [backgroundImage, playerImage, fox01Image, hudImage, atackEffectImage, ancientImage, masterImage, farmerImage];
+const imgs = [backgroundImage, playerImage, fox01Image, fox02Image, fox03Image, hudImage, atackEffectImage, ancientImage, masterImage, farmerImage];
 let i = 0;
 for (let img of imgs) {
     img.onload = () => {
@@ -113,7 +117,6 @@ for (let img of imgs) {
             }))
 
         }
-        console.log(i);
     }
 }
 

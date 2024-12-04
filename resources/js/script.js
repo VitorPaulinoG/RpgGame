@@ -272,6 +272,162 @@ window.addEventListener('preloaded', (e) => {
             min: 2000
         }
     });
+
+
+    const fox02Sprite = new Sprite ({
+        animation: new Animation({
+            hasAnimations: true,
+            sources: {
+                idle: {
+                    paths: {
+                        0: './resources/assets/enemies/fox/idle/down.png',
+                        1: './resources/assets/enemies/fox/idle/left.png',
+                        2: './resources/assets/enemies/fox/idle/up.png',
+                        3: './resources/assets/enemies/fox/idle/right.png',
+                    },
+                    frameCount: 1
+                },
+                walk: {
+                    paths: {
+                        0: './resources/assets/enemies/fox/movement/down.png',
+                        1: './resources/assets/enemies/fox/movement/left.png',
+                        2: './resources/assets/enemies/fox/movement/up.png',
+                        3: './resources/assets/enemies/fox/movement/right.png',
+                    },
+                    frameCount: 4
+                },
+                melee: {
+                    paths: {
+                        0: './resources/assets/enemies/fox/melee/down.png',
+                        1: './resources/assets/enemies/fox/melee/left.png',
+                        2: './resources/assets/enemies/fox/melee/up.png',
+                        3: './resources/assets/enemies/fox/melee/right.png',
+                    },
+                    frameCount: 4
+                }
+            }, 
+            frameRate: 10,
+            image: fox02Image,
+            isPlaying: true,
+            aditionalConditions: (animation) => {
+                if(!(animation.currentSource === animation.sources['melee'] && 
+                    animation.frameNumber === animation.sources['melee'].frameCount - 1)) {
+                    animation.frameNumber = 0;
+                } 
+            }
+        }),
+        position: {
+            x: -500, 
+            y: -250
+        }, 
+        width: fox02Image.width,
+        opacity: 1,
+        ctx: ctx
+    });
+    const fox02Properties = new CharacterProperty({
+        hp: 3, 
+        damage: 1, 
+        velocity: 3
+    });
+    const fox02 = new Enemy({
+        sprite: fox02Sprite,
+        properties: fox02Properties,
+        boundaries: boundaries,
+        possibleMoves: enemyPossibleMoves,
+        triggersOffset: {
+            x: 20,
+            y: 40
+        },
+        collider: new BoxCollider({
+            offset: {
+                x: 25,
+                y: 25
+            },
+            sprite: fox02Sprite
+        }),
+        intervalToChangeDirection: {
+            max: 5000,
+            min: 2000
+        }
+    });
+
+    const fox03Sprite = new Sprite ({
+        animation: new Animation({
+            hasAnimations: true,
+            sources: {
+                idle: {
+                    paths: {
+                        0: './resources/assets/enemies/fox/idle/down.png',
+                        1: './resources/assets/enemies/fox/idle/left.png',
+                        2: './resources/assets/enemies/fox/idle/up.png',
+                        3: './resources/assets/enemies/fox/idle/right.png',
+                    },
+                    frameCount: 1
+                },
+                walk: {
+                    paths: {
+                        0: './resources/assets/enemies/fox/movement/down.png',
+                        1: './resources/assets/enemies/fox/movement/left.png',
+                        2: './resources/assets/enemies/fox/movement/up.png',
+                        3: './resources/assets/enemies/fox/movement/right.png',
+                    },
+                    frameCount: 4
+                },
+                melee: {
+                    paths: {
+                        0: './resources/assets/enemies/fox/melee/down.png',
+                        1: './resources/assets/enemies/fox/melee/left.png',
+                        2: './resources/assets/enemies/fox/melee/up.png',
+                        3: './resources/assets/enemies/fox/melee/right.png',
+                    },
+                    frameCount: 4
+                }
+            }, 
+            frameRate: 10,
+            image: fox03Image,
+            isPlaying: true,
+            aditionalConditions: (animation) => {
+                if(!(animation.currentSource === animation.sources['melee'] && 
+                    animation.frameNumber === animation.sources['melee'].frameCount - 1)) {
+                    animation.frameNumber = 0;
+                } 
+            }
+        }),
+        position: {
+            x: -650, 
+            y: 30
+        }, 
+        width: fox03Image.width,
+        opacity: 1,
+        ctx: ctx
+    });
+    const fox03Properties = new CharacterProperty({
+        hp: 3, 
+        damage: 1, 
+        velocity: 3
+    });
+    const fox03 = new Enemy({
+        sprite: fox03Sprite,
+        properties: fox03Properties,
+        boundaries: boundaries,
+        possibleMoves: enemyPossibleMoves,
+        triggersOffset: {
+            x: 20,
+            y: 40
+        },
+        collider: new BoxCollider({
+            offset: {
+                x: 25,
+                y: 25
+            },
+            sprite: fox03Sprite
+        }),
+        intervalToChangeDirection: {
+            max: 5000,
+            min: 2000
+        }
+    });
+
     
     
     const ancient = new Sprite({
@@ -387,8 +543,11 @@ window.addEventListener('preloaded', (e) => {
         }   
     }
     
-    const movables = [background, ...boundaries, foreground, ancient, fox01Sprite, master, farmer];
+    let enemies = [fox01, fox02, fox03];
+    const movables = [background, ...boundaries, foreground, ancient, ...enemies.map(x => x.sprite), master, farmer];
+    
     let effects = [];
+
     
     
     let playerDirection = 0;
@@ -398,33 +557,35 @@ window.addEventListener('preloaded', (e) => {
         boundaries.forEach(boundary => {
             boundary.draw();
         });
-    
-        if(fox01.properties.hp > 0) {
-            // Fox Collision
-            ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
-            ctx.fillRect(
-                fox01.collider.position.x, 
-                fox01.collider.position.y, 
-                fox01.collider.width, 
-                fox01.collider.height);
-            // Fox Pivot 
-            ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
-            ctx.fillRect(
-                fox01.sprite.position.x, 
-                fox01.sprite.position.y,
-                10,
-                10);
-        
-            // Fox Triggers
-            for(let trigger of fox01.triggers) {
-                ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+        for (let enemy of enemies) {
+            if(enemy.properties.isAlive) {
+                // Fox Collision
+                ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
                 ctx.fillRect(
-                    trigger.x, 
-                    trigger.y,
-                    fox01.collider.width,
-                    fox01.collider.height);
+                    enemy.collider.position.x, 
+                    enemy.collider.position.y, 
+                    enemy.collider.width, 
+                    enemy.collider.height);
+                // Fox Pivot 
+                ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+                ctx.fillRect(
+                    enemy.sprite.position.x, 
+                    enemy.sprite.position.y,
+                    10,
+                    10);
+            
+                // Fox Triggers
+                for(let trigger of enemy.triggers) {
+                    ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                    ctx.fillRect(
+                        trigger.x, 
+                        trigger.y,
+                        enemy.collider.width,
+                        enemy.collider.height);
+                }
+        
             }
-    
+            
         }
             
     
@@ -446,17 +607,41 @@ window.addEventListener('preloaded', (e) => {
     
     function toOrderCharacters () {
         let characters = [
+            ...enemies.map(enemy => {
+                return {
+                    position: {
+                        x: enemy.sprite.position.x,
+                        y: enemy.sprite.position.y + 25
+                    },
+                    width: enemy.sprite.width,
+                    height: enemy.sprite.height,
+                    draw: () => {
+                        enemy.sprite.draw();
+                    }
+                }
+            }), 
             {
                 position: {
-                    x: fox01.sprite.position.x,
-                    y: fox01.sprite.position.y + 15
+                    x: player.sprite.position.x,
+                    y: player.sprite.position.y
                 },
-                width: fox01.sprite.width,
-                height: fox01.sprite.height,
+                width: player.sprite.width,
+                height: player.sprite.height,
                 draw: () => {
-                    fox01.sprite.draw();
-                }
-            }, 
+                    player.sprite.draw();
+                } 
+            },
+            {
+                position: {
+                    x: atackEffect.position.x,
+                    y: atackEffect.position.y
+                },
+                width: atackEffect.width,
+                height: atackEffect.height,
+                draw: () => {
+                    atackEffect.draw();
+                } 
+            },
             {
                 position: {
                     x: ancient.position.x,
@@ -470,17 +655,6 @@ window.addEventListener('preloaded', (e) => {
             },
             {
                 position: {
-                    x: master.position.x,
-                    y: master.position.y
-                },
-                width: master.width,
-                height: master.height,
-                draw: () => {
-                    master.draw();
-                }
-            },
-            {
-                position: {
                     x: farmer.position.x,
                     y: farmer.position.y
                 },
@@ -490,35 +664,47 @@ window.addEventListener('preloaded', (e) => {
                     farmer.draw();
                 }
             },
+            {
+                position: {
+                    x: master.position.x,
+                    y: master.position.y
+                },
+                width: master.width,
+                height: master.height,
+                draw: () => {
+                    master.draw();
+                }
+            },
+            
     
         ];
-        
-        let wasPlayerDrawn = false;
+        characters.sort((a, b) => a.position.y - b.position.y);
+        // let wasPlayerDrawn = false;
         
     
         for (let character of characters) {
-            if(!wasPlayerDrawn && collisionDetection(playerSprite, character) && player.sprite.position.y - 10 < character.position.y){
+            // if(!wasPlayerDrawn && collisionDetection(playerSprite, character) && player.sprite.position.y - 10 < character.position.y){
     
-                if(playerDirection === 2) {
-                    atackEffect.draw();
-                    player.sprite.draw();
-                } else {
-                    player.sprite.draw();
-                    atackEffect.draw();
-                }
-                wasPlayerDrawn = true;
-            }
+            //     if(playerDirection === 2) {
+            //         atackEffect.draw();
+            //         player.sprite.draw();
+            //     } else {
+            //         player.sprite.draw();
+            //         atackEffect.draw();
+            //     }
+            //     wasPlayerDrawn = true;
+            // }
             character.draw();
         }
-        if(!wasPlayerDrawn) {
-            if(playerDirection === 2) {
-                atackEffect.draw();
-                player.sprite.draw();
-            } else {
-                player.sprite.draw();
-                atackEffect.draw();
-            }
-        }
+        // if(!wasPlayerDrawn) {
+        //     if(playerDirection === 2) {
+        //         atackEffect.draw();
+        //         player.sprite.draw();
+        //     } else {
+        //         player.sprite.draw();
+        //         atackEffect.draw();
+        //     }
+        // }
             
     }
     
@@ -531,10 +717,13 @@ window.addEventListener('preloaded', (e) => {
     
         background.draw();
         
-        if(fox01.properties.hp > 0) {
-            fox01.detectPlayer(player);
+        for(let enemy of enemies ) {
+            if(enemy.properties.isAlive) {
+                enemy.detectPlayer(player);
+            }
+            enemy.collider.updateCollider()
+            
         }
-        fox01.collider.updateCollider()
     
         
         toOrderCharacters();
@@ -656,15 +845,16 @@ window.addEventListener('preloaded', (e) => {
                         };
                     break;
                 }
-        
-                if(collisionDetection(atackTrigger, fox01.collider)) {
-                    let direction = playerDirection;
-                    if(!fox01.isTakingDamage)
-                        fox01.pushEnemy(fox01.possibleMoves[direction + 1], 100, 3);
-                    
-        
+                
+                for (let enemy of enemies) {
+                    if(collisionDetection(atackTrigger, enemy.collider)) {
+                        let direction = playerDirection;
+                        if(!enemy.isTakingDamage)
+                            enemy.pushEnemy(enemy.possibleMoves[direction + 1], 100, 3);
+                        
+            
+                    }
                 }
-        
                 setTimeout(() => {
                     player.sprite.animation.isPlaying = false;
                     player.isAttacking = false;
@@ -757,6 +947,17 @@ window.addEventListener('preloaded', (e) => {
     }
     
     
+    
+    // backgroundImage.onload = () => {console.log(backgroundImage.width)};
+    // foregroundImage.onload = () => {console.log(foregroundImage.width)};
+    // hudImage.onload = () => {console.log(hudImage.width)};
+    // playerImage.onload = () => {console.log(playerImage.width)};
+    // atackEffectImage.onload = () => {console.log(atackEffectImage.width)};
+    // fox01Image.onload = () => {console.log(fox01Image.width)};
+    // masterImage.onload = () => {console.log(masterImage.width)};
+    // ancientImage.onload = () => {console.log(ancientImage.width)};
+    // farmerImage.onload = () => {console.log(farmerImage.width)};
+
     // backgroundImage.onload = () => {console.log(backgroundImage.width)};
     // foregroundImage.onload = () => {console.log(foregroundImage.width)};
     // hudImage.onload = () => {console.log(hudImage.width)};
