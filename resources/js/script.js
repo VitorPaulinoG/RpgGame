@@ -4,6 +4,8 @@ const GameState = {
     MENU: 'menu',
     GAME: 'game'
   };
+
+
 window.addEventListener('preloaded', (e) => {
     let currentState = GameState.MENU;
 
@@ -436,9 +438,7 @@ window.addEventListener('preloaded', (e) => {
         opacity: 1,
         ctx: ctx
     });
-    
-    
-    
+
     const master = new Sprite({
         animation: new Animation ({
             hasAnimations: true,
@@ -661,15 +661,34 @@ window.addEventListener('preloaded', (e) => {
         }  
     }
     
+
+    let minY = 90;
+    let countY = 300;
+    let step = 3;
+    let pressStartFontSize = 40;
+
     function animate () {
-        if (currentState !== GameState.GAME) 
-            return;
+        
         if(running) {
             animationFrameId = window.requestAnimationFrame(animate);
         }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     
+        switch (currentState) {
+            case GameState.GAME: 
+                game();
+            break;
+            case GameState.MENU:
+                menu();
+            break;
+        }
+
+        
+    }
     
+    animate();
+
+    function game () {
         background.draw();
         
         for(let enemy of enemies ) {
@@ -913,10 +932,35 @@ window.addEventListener('preloaded', (e) => {
         }
     }
 
-    function chooseScreen () {
-        
-        animate();
 
+    function menu () {
+        const centerX = canvas.width / 2;  
+        const centerY = canvas.height / 2;
+        let firstLineY = countY + 140;
+
+        ctx.font = '50px zelda-font';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+    
+        ctx.fillStyle= 'black';
+        ctx.fillText('The Legend Of', centerX, firstLineY); 
+        ctx.font = '150px zelda-font';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'bottom';
+        ctx.fillText('Zezo', centerX, centerY + countY);
+        
+        if(countY > minY) {
+            countY -= step;
+        } else {
+            ctx.font = `${pressStartFontSize}px zelda-font`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText('Press Start', centerX, centerY + countY + 40); 
+
+            if(pressStartFontSize < 60) {
+                pressStartFontSize++;
+            } else if (pressStartFontSize === 60)
+        }
     }
 
     

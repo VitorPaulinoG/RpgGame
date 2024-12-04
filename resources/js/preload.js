@@ -101,6 +101,14 @@ masterImage.src = './resources/assets/npc/master/master.png';
 const farmerImage = new Image();
 farmerImage.src = './resources/assets/npc/farmer/farmer.png';
 
+
+loadFonts();
+async function loadFonts () {
+    const font = new FontFace('zelda-font', 'url(./resources/css/fonts/zelda-font.otf)');
+    await font.load();
+    document.fonts.add(font);
+}
+
 const imgs = [
     backgroundImage, foregroundImage, playerImage, 
     fox01Image, fox02Image, fox03Image, hudImage, 
