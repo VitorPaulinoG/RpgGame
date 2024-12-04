@@ -19,3 +19,8 @@ canvas {
     border-radius: 20px;
     border: 2px solid black;
 }
+
+@font-face {
+    font-family: 'fonteZelda'; 
+    src: url('\fonts\Pretendo.ttf') format('truetype');
+}

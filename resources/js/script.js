@@ -681,7 +681,6 @@ window.addEventListener('preloaded', (e) => {
         
         toOrderCharacters();
     
-    
         
         if (isDialogDisplaying) {
             const currentDialogueText = getCurrentDialogue(player.sprite); 
@@ -896,7 +895,23 @@ window.addEventListener('preloaded', (e) => {
             keys.space.pressed = false; 
         }
     
+        if(isGameOVer){ 
+            const centerX = canvas.width / 2;  
+            const centerY = canvas.height / 2;
+
+            ctx.font = '30px Pretendo';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+        
+            ctx.fillStyle= 'black';
+            ctx.fillRect(centerX - canvas.width / 4, centerY - canvas.height / 4, canvas.width / 2, canvas.height / 2);
+            ctx.fillStyle = 'white';
+            ctx.fillText(message, centerX, centerY - 50); 
+            ctx.fillText(`Score: ${score}`, centerX, centerY + 50); 
+        }
     }
+
+
 
     animate();
     
@@ -951,7 +966,12 @@ window.addEventListener('preloaded', (e) => {
                 keys.q.pressed = true;
                 isDialogDisplaying = !isDialogDisplaying;
                 break;
-        }
+    
+        case 'r':
+            keys.r.pressed = true;
+           // isrestartGame = !isrestartGame;
+            break;
+    }
     });
     window.addEventListener('keyup', (e) => {
         switch (e.key) {
@@ -1108,6 +1128,10 @@ window.addEventListener('preloaded', (e) => {
     
 });
 
+window.addEventListener('gameOver', (event) => {
+    isGameOVer= true; 
+        
+});
 
 
 

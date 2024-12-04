@@ -8,7 +8,9 @@ const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false; // Não embaça/borra os pixels 
 let running = true;
 let animationFrameId;
-
+let isGameOVer = false;
+let score=0;
+let message= 'Game Over';
 // Audios
 let audioInitialized = false;
 window.addEventListener('load', () => {

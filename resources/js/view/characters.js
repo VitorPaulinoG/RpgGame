@@ -49,10 +49,19 @@ class Player {
                     }
                     
                 }, 300);
+                
 
                 if(this.properties.hp <= 0) {
                     console.log('Game Over!'); 
                     audio.GameOver.play();
+                    audio.Map.stop();
+                    window.dispatchEvent(new CustomEvent('gameOver',{
+                        detail: {
+                            message: 'Game Over',
+                            
+                           
+                        }
+                    }));
                 }
             } 
         } 
