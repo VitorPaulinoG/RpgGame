@@ -1,4 +1,4 @@
-export class CharacterProperty {
+class CharacterProperty {
     constructor({hp, damage, velocity}) {
         this.hp = hp;
         this.damage = damage;
@@ -6,7 +6,7 @@ export class CharacterProperty {
         this.isAlive = true;
     }
 }
-export class Player {
+class Player {
     constructor ({sprite, properties, collider, boundaries, hud}) {
         this.sprite = sprite;
         this.properties = properties;
@@ -78,7 +78,7 @@ export class Player {
     }
 }
 
-export class Enemy {
+class Enemy {
     constructor ({sprite, properties, possibleMoves, boundaries, triggersOffset, 
             collider, intervalToChangeDirection = {max: 5000, min: 2000}}) {
         this.sprite = sprite;

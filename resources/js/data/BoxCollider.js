@@ -1,4 +1,4 @@
-export class BoxCollider {
+class BoxCollider {
     constructor ({offset, sprite}) {
         this.offset = offset;
         this.sprite = sprite;

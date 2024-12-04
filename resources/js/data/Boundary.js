@@ -1,4 +1,4 @@
-export class Boundary {
+class Boundary {
     static width = 36;
     static height = 36;
     constructor ({position}, ctx ) {

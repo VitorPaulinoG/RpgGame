@@ -1,4 +1,4 @@
-export class Sprite {
+class Sprite {
     constructor ({animation, position, ctx, width, height, opacity}) {
         this.ctx = ctx;
         this.animation = animation;
