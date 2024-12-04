@@ -8,7 +8,6 @@
 
 window.addEventListener('preloaded', (e) => {
 
-
     const background = new Sprite({
         animation: new Animation ({
             hasAnimations: false,
@@ -32,7 +31,6 @@ window.addEventListener('preloaded', (e) => {
         opacity: 1
     });
     
-    
     const foreground = new Sprite({
         animation: new Animation ({
             hasAnimations: false,
@@ -55,8 +53,7 @@ window.addEventListener('preloaded', (e) => {
         ctx: ctx,
         opacity: 1
     });
-    
-    
+     
     const playerSprite = new Sprite({
         animation: new Animation ({
             hasAnimations: true,
@@ -108,10 +105,7 @@ window.addEventListener('preloaded', (e) => {
         },
         opacity: 1,
         ctx: ctx
-    });
-    
-    
-    
+    }); 
     
     const hud = new Sprite({
         animation: new Animation({
@@ -141,8 +135,6 @@ window.addEventListener('preloaded', (e) => {
     
     hud.animation.setAnimation('idle', 3);
     
-    
-    
     const playerProperties = new CharacterProperty({
         hp: 3, 
         damage: 1, 
@@ -161,8 +153,6 @@ window.addEventListener('preloaded', (e) => {
         }),
         boundaries: boundaries
     });
-    
-    
     
     const atackEffect = new Sprite({
         animation: new Animation({
@@ -192,9 +182,6 @@ window.addEventListener('preloaded', (e) => {
         }
         
     });
-    
-    
-    
     
     const fox01Sprite = new Sprite ({
         animation: new Animation({
@@ -272,7 +259,6 @@ window.addEventListener('preloaded', (e) => {
             min: 2000
         }
     });
-
 
     const fox02Sprite = new Sprite ({
         animation: new Animation({
@@ -428,8 +414,6 @@ window.addEventListener('preloaded', (e) => {
         }
     });
 
-    
-    
     const ancient = new Sprite({
         animation: new Animation ({
             hasAnimations: true,
@@ -477,9 +461,6 @@ window.addEventListener('preloaded', (e) => {
         opacity: 1,
         ctx: ctx
     });
-    
-    
-    
     
     const farmer = new Sprite({
         animation: new Animation ({
@@ -548,8 +529,6 @@ window.addEventListener('preloaded', (e) => {
     
     let effects = [];
 
-    
-    
     let playerDirection = 0;
     
     function drawGzimos () {
