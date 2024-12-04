@@ -101,7 +101,13 @@ masterImage.src = './resources/assets/npc/master/master.png';
 const farmerImage = new Image();
 farmerImage.src = './resources/assets/npc/farmer/farmer.png';
 
-const imgs = [backgroundImage, foregroundImage, playerImage, fox01Image, fox02Image, fox03Image, hudImage, atackEffectImage, ancientImage, masterImage, farmerImage];
+const imgs = [
+    backgroundImage, foregroundImage, playerImage, 
+    fox01Image, fox02Image, fox03Image, hudImage, 
+    atackEffectImage, ancientImage, masterImage, 
+    farmerImage];
+
+    
 let i = 0;
 for (let img of imgs) {
     img.onload = () => {

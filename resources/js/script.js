@@ -1,12 +1,12 @@
-// import { Sprite } from './view/Sprite.js';
-// import { Animation } from './view/Animation.js';
-// import { Dialogue } from './view/Dialogue.js';
-// import { Boundary } from './data/Boundary.js';
-// import { Enemy, Player, CharacterProperty } from './view/characters.js';
-// import { BoxCollider } from './data/BoxCollider.js';
 
 
+const GameState = {
+    MENU: 'menu',
+    GAME: 'game'
+  };
 window.addEventListener('preloaded', (e) => {
+    let currentState = GameState.MENU;
+
 
     const background = new Sprite({
         animation: new Animation ({
@@ -662,6 +662,8 @@ window.addEventListener('preloaded', (e) => {
     }
     
     function animate () {
+        if (currentState !== GameState.GAME) 
+            return;
         if(running) {
             animationFrameId = window.requestAnimationFrame(animate);
         }
@@ -911,9 +913,12 @@ window.addEventListener('preloaded', (e) => {
         }
     }
 
+    function chooseScreen () {
+        
+        animate();
 
+    }
 
-    animate();
     
     window.addEventListener('visibilitychange', () => {
         if (document.hidden) {
@@ -1125,13 +1130,14 @@ window.addEventListener('preloaded', (e) => {
             };
         }, 750);
     });
+    window.addEventListener('gameOver', (event) => {
+        isGameOVer= true; 
+            
+    });
     
 });
 
-window.addEventListener('gameOver', (event) => {
-    isGameOVer= true; 
-        
-});
+
 
 
 
