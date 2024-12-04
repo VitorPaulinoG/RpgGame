@@ -1,5 +1,6 @@
 import { Sprite } from './view/Sprite.js';
 import { Animation } from './view/Animation.js';
+import { Dialogue } from './view/Dialogue.js';
 
 import { Boundary } from './data/Boundary.js'
 import { Enemy, Player, CharacterProperty } from './view/characters.js';
@@ -12,8 +13,9 @@ const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false; // Não embaça/borra os pixels 
 let running = true;
 let animationFrameId;
-
-
+let isGameOVer = false;
+let score=0;
+let message= 'Game Over';
 
 // Audios
 let audioInitialized = false;
@@ -304,13 +306,12 @@ const fox01Sprite = new Sprite ({
         frameRate: 10,
         image: fox01Image,
         isPlaying: true,
-        // aditionalConditions: (animation) => {
-        //     if(animation.currentSource === animation.sources['melee'])
-        //         if(animation.frameNumber === animation.sources['melee'].frameCount)
-        //             animation.setAnimation('idle', animation.currentSource.currentPath);
-        //     else 
-        //         animation.frameNumber = 0;
-        // }
+        aditionalConditions: (animation) => {
+            if(!(animation.currentSource === animation.sources['melee'] && 
+                animation.frameNumber === animation.sources['melee'].frameCount - 1)) {
+                animation.frameNumber = 0;
+            } 
+        }
     }),
     position: {
         x: 760, 
@@ -340,7 +341,11 @@ const fox01 = new Enemy({
             y: 25
         },
         sprite: fox01Sprite
-    })
+    }),
+    intervalToChangeDirection: {
+        max: 5000,
+        min: 2000
+    }
 });
 
 const ancientImage = new Image();
@@ -368,6 +373,7 @@ const ancient = new Sprite({
     ctx: ctx
 });
 
+
 const masterImage = new Image();
 masterImage.src = './resources/assets/npc/master/master.png';
 const master = new Sprite({
@@ -394,6 +400,7 @@ const master = new Sprite({
 });
 
 
+
 const farmerImage = new Image();
 farmerImage.src = './resources/assets/npc/farmer/farmer.png';
 const farmer = new Sprite({
@@ -418,6 +425,22 @@ const farmer = new Sprite({
     opacity: 1,
     ctx: ctx
 });
+let playerLife = 3;
+
+const dialogues = [
+    new Dialogue(ancient, "Olá, viajante! Você quer mais vidas?"),
+    new Dialogue(master, "Você quer melhorar suas habilidades, viajante?"),
+    new Dialogue(farmer, "Esses malditos monstros! Estão destruindo a vila!")
+];
+let isDialogDisplaying = false;
+function getCurrentDialogue(player) {
+    for (const dialogue of dialogues) {
+        if (dialogue.verificarProximidadePlayer(player)) {
+            return dialogue.text;
+        }
+    }
+    return ""; // Se não houver diálogo, retorna vazio
+}
 
 const keys = {
     w: {
@@ -434,7 +457,10 @@ const keys = {
     },
     space: {
         pressed: false
-    }
+    },
+    q: {
+        pressed: false
+    }   
 }
 
 const movables = [background, ...boundaries, foreground, ancient, fox01Sprite, master, farmer];
@@ -449,30 +475,32 @@ function drawGzimos () {
         boundary.draw();
     });
 
-
-    // Fox Collision
-    ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
-    ctx.fillRect(
-        fox01.collider.position.x, 
-        fox01.collider.position.y, 
-        fox01.collider.width, 
-        fox01.collider.height);
-    // Fox Pivot 
-    ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
-    ctx.fillRect(
-        fox01.sprite.position.x, 
-        fox01.sprite.position.y,
-        10,
-        10);
-
-    // Fox Triggers
-    for(let trigger of fox01.triggers) {
-        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+    if(fox01.properties.hp > 0) {
+        // Fox Collision
+        ctx.fillStyle = 'rgba(0, 255, 0, 0.5)';
         ctx.fillRect(
-            trigger.x, 
-            trigger.y,
-            fox01.collider.width,
+            fox01.collider.position.x, 
+            fox01.collider.position.y, 
+            fox01.collider.width, 
             fox01.collider.height);
+        // Fox Pivot 
+        ctx.fillStyle = 'rgba(0, 0, 255, 0.5)';
+        ctx.fillRect(
+            fox01.sprite.position.x, 
+            fox01.sprite.position.y,
+            10,
+            10);
+    
+        // Fox Triggers
+        for(let trigger of fox01.triggers) {
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+            ctx.fillRect(
+                trigger.x, 
+                trigger.y,
+                fox01.collider.width,
+                fox01.collider.height);
+        }
+
     }
         
 
@@ -542,6 +570,10 @@ function toOrderCharacters () {
     ];
     
     let wasPlayerDrawn = false;
+    
+    // if(fox01.properties.hp <= 0) {
+    //     characters.splice(0, 1);
+    // }
 
     for (let character of characters) {
         if(!wasPlayerDrawn && collisionDetection(playerSprite, character) && player.sprite.position.y - 10 < character.position.y){
@@ -569,7 +601,9 @@ function toOrderCharacters () {
         
 }
 
+
 function animate () {
+
     if(running) {
         animationFrameId = window.requestAnimationFrame(animate);
     }
@@ -577,19 +611,38 @@ function animate () {
 
 
     background.draw();
-
+    
+    if(fox01.properties.hp > 0) {
+        fox01.detectPlayer(player);
+    }
     fox01.collider.updateCollider()
 
     
     
     toOrderCharacters();
+
+
+    if (isDialogDisplaying) {
+        const currentDialogueText = getCurrentDialogue(player.sprite); 
+        if(currentDialogueText) {
+            const currentDialogue = dialogues.find(d => d.text === currentDialogueText);
+            if (currentDialogue) {
+                currentDialogue.drawDialogue(ctx, canvas);
+            }
+
+        } else {
+            isDialogDisplaying = false;
+        }
+        
+    }
+
+
     foreground.draw();
     hud.draw();
 
     if(document.getElementById('gzimos').checked){
         drawGzimos ();
     }
-    fox01.detectPlayer(player);
     
     
     let moving = true;
@@ -773,7 +826,29 @@ function animate () {
         keys.space.pressed = false; 
     }
 
+        if(isGameOVer){ 
+        
+    
+        const canvas = document.getElementById('canvas'); 
+        const centerX = canvas.width / 2;  
+        const centerY = canvas.height / 2;
+
+        ctx.font = '30px Pretendo';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+    
+        ctx.fillStyle= 'black';
+        ctx.fillRect(centerX - canvas.width / 4, centerY - canvas.height / 4, canvas.width / 2, canvas.height / 2);
+        ctx.fillStyle = 'white';
+        ctx.fillText(message, centerX, centerY - 50); 
+        ctx.fillText(`Score: ${score}`, centerX, centerY + 50); 
+        
+
+       
+    }
 }
+
+
 animate();
 
 document.addEventListener('visibilitychange', () => {
@@ -823,7 +898,15 @@ window.addEventListener('keydown', (e) => {
         case ' ':
             keys.space.pressed = true;
             break;
+        case 'q':
+            keys.q.pressed = true;
+            isDialogDisplaying = !isDialogDisplaying;
+            break;
 
+        case 'r':
+            keys.r.pressed = true;
+           // isrestartGame = !isrestartGame;
+            break;
     }
 });
 window.addEventListener('keyup', (e) => {
@@ -844,6 +927,9 @@ window.addEventListener('keyup', (e) => {
             keys.d.pressed = false;
             player.sprite.animation.isPlaying = false;
         break;
+        case 'q':
+            keys.q.pressed = false;
+            break;
         case ' ':
             keys.space.pressed = false;
             player.canAttack = true;
@@ -852,6 +938,10 @@ window.addEventListener('keyup', (e) => {
 
 });
 
+window.addEventListener('gameOver', (event) => {
+    isGameOVer= true; 
+        
+});
 
 
 
