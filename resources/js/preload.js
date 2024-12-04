@@ -1,9 +1,4 @@
-// import { Sprite } from './view/Sprite.js';
-// import { Animation } from './view/Animation.js';
-// import { Dialogue } from './view/Dialogue.js';
-// import { Boundary } from './data/Boundary.js';
-// import { Enemy, Player, CharacterProperty } from './view/characters.js';
-// import { BoxCollider } from './data/BoxCollider.js';
+
 
 const canvas = document.querySelector('canvas');
 canvas.width = 1024;

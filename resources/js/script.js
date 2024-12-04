@@ -674,38 +674,12 @@ window.addEventListener('preloaded', (e) => {
                 draw: () => {
                     master.draw();
                 }
-            },
-            
-    
+            }
         ];
         characters.sort((a, b) => a.position.y - b.position.y);
-        // let wasPlayerDrawn = false;
-        
-    
         for (let character of characters) {
-            // if(!wasPlayerDrawn && collisionDetection(playerSprite, character) && player.sprite.position.y - 10 < character.position.y){
-    
-            //     if(playerDirection === 2) {
-            //         atackEffect.draw();
-            //         player.sprite.draw();
-            //     } else {
-            //         player.sprite.draw();
-            //         atackEffect.draw();
-            //     }
-            //     wasPlayerDrawn = true;
-            // }
             character.draw();
-        }
-        // if(!wasPlayerDrawn) {
-        //     if(playerDirection === 2) {
-        //         atackEffect.draw();
-        //         player.sprite.draw();
-        //     } else {
-        //         player.sprite.draw();
-        //         atackEffect.draw();
-        //     }
-        // }
-            
+        }  
     }
     
     function animate () {
@@ -751,7 +725,6 @@ window.addEventListener('preloaded', (e) => {
             }
             effect.sprite.draw(); 
         }
-        /// for enemy of enemies
     
         foreground.draw();
         hud.draw();
@@ -945,43 +918,22 @@ window.addEventListener('preloaded', (e) => {
         }
     
     }
-    
-    
-    
-    // backgroundImage.onload = () => {console.log(backgroundImage.width)};
-    // foregroundImage.onload = () => {console.log(foregroundImage.width)};
-    // hudImage.onload = () => {console.log(hudImage.width)};
-    // playerImage.onload = () => {console.log(playerImage.width)};
-    // atackEffectImage.onload = () => {console.log(atackEffectImage.width)};
-    // fox01Image.onload = () => {console.log(fox01Image.width)};
-    // masterImage.onload = () => {console.log(masterImage.width)};
-    // ancientImage.onload = () => {console.log(ancientImage.width)};
-    // farmerImage.onload = () => {console.log(farmerImage.width)};
 
-    // backgroundImage.onload = () => {console.log(backgroundImage.width)};
-    // foregroundImage.onload = () => {console.log(foregroundImage.width)};
-    // hudImage.onload = () => {console.log(hudImage.width)};
-    // playerImage.onload = () => {console.log(playerImage.width)};
-    // atackEffectImage.onload = () => {console.log(atackEffectImage.width)};
-    // fox01Image.onload = () => {console.log(fox01Image.width)};
-    // masterImage.onload = () => {console.log(masterImage.width)};
-    // ancientImage.onload = () => {console.log(ancientImage.width)};
-    // farmerImage.onload = () => {console.log(farmerImage.width)};
     animate();
     
     window.addEventListener('visibilitychange', () => {
         if (document.hidden) {
-            // Pausa a animação quando a aba não está visível
             running = false;
             cancelAnimationFrame(animationFrameId);
             console.log('Canvas pausado.');
         } else {
-            // Retoma a animação quando a aba volta a ser visível
             running = true;
             animate();
             console.log('Canvas retomado.');
         }
     });
+    
+
     
     // KEYMAPPING
     let lastkey = '';
