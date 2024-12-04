@@ -666,6 +666,8 @@ window.addEventListener('preloaded', (e) => {
     let countY = 300;
     let step = 3;
     let pressStartFontSize = 40;
+    let sizeVariant = 1;
+    let targetSize = 50;
 
     function animate () {
         
@@ -955,15 +957,44 @@ window.addEventListener('preloaded', (e) => {
             ctx.font = `${pressStartFontSize}px zelda-font`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
-            ctx.fillText('Press Start', centerX, centerY + countY + 40); 
+            ctx.fillText('Press Start', centerX, centerY + countY + 50); 
 
-            if(pressStartFontSize < 60) {
-                pressStartFontSize++;
-            } else if (pressStartFontSize === 60)
+            if(pressStartFontSize < targetSize) {
+                pressStartFontSize+=sizeVariant/4;
+            } else if (pressStartFontSize === targetSize) {
+                sizeVariant = -sizeVariant;
+                targetSize = pressStartFontSize + (sizeVariant*10);
+            } else {
+                pressStartFontSize+=sizeVariant/4;
+            }
         }
     }
 
-    
+    canvas.addEventListener('click', (event) => {
+        if(currentState = GameState.MENU) {
+            const rect = canvas.getBoundingClientRect(); // Obtém as coordenadas do canvas
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+
+            let button = {
+                text: 'Start', 
+                x: canvas.width / 2 - 150, 
+                y: canvas.height / 2 + minY, 
+                width: 300, 
+                height: 50, 
+                }
+            if (
+                mouseX >= button.x &&
+                mouseX <= button.x + button.width &&
+                mouseY >= button.y &&
+                mouseY <= button.y + button.height
+              ) {
+                console.log("Clicou");
+                // button.action(); // Executa a ação associada ao botão
+              }
+        }
+
+    });
     window.addEventListener('visibilitychange', () => {
         if (document.hidden) {
             running = false;
