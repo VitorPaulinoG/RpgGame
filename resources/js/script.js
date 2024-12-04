@@ -832,6 +832,7 @@ function animate () {
         const canvas = document.getElementById('canvas'); 
         const centerX = canvas.width / 2;  
         const centerY = canvas.height / 2;
+    
 
         ctx.font = '30px Pretendo';
         ctx.textAlign = 'center';
@@ -843,10 +844,11 @@ function animate () {
         ctx.fillText(message, centerX, centerY - 50); 
         ctx.fillText(`Score: ${score}`, centerX, centerY + 50); 
         
-
        
+     
     }
 }
+    
 
 
 animate();
