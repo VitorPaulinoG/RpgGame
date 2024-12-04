@@ -13,8 +13,9 @@ const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false; // Não embaça/borra os pixels 
 let running = true;
 let animationFrameId;
-
-
+let isGameOVer = false;
+let score=0;
+let message= 'Game Over';
 
 // Audios
 let audioInitialized = false;
@@ -600,7 +601,9 @@ function toOrderCharacters () {
         
 }
 
+
 function animate () {
+
     if(running) {
         animationFrameId = window.requestAnimationFrame(animate);
     }
@@ -619,7 +622,6 @@ function animate () {
     toOrderCharacters();
 
 
-    
     if (isDialogDisplaying) {
         const currentDialogueText = getCurrentDialogue(player.sprite); 
         if(currentDialogueText) {
@@ -824,7 +826,29 @@ function animate () {
         keys.space.pressed = false; 
     }
 
+        if(isGameOVer){ 
+        
+    
+        const canvas = document.getElementById('canvas'); 
+        const centerX = canvas.width / 2;  
+        const centerY = canvas.height / 2;
+
+        ctx.font = '30px Pretendo';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+    
+        ctx.fillStyle= 'black';
+        ctx.fillRect(centerX - canvas.width / 4, centerY - canvas.height / 4, canvas.width / 2, canvas.height / 2);
+        ctx.fillStyle = 'white';
+        ctx.fillText(message, centerX, centerY - 50); 
+        ctx.fillText(`Score: ${score}`, centerX, centerY + 50); 
+        
+
+       
+    }
 }
+
+
 animate();
 
 document.addEventListener('visibilitychange', () => {
@@ -878,6 +902,11 @@ window.addEventListener('keydown', (e) => {
             keys.q.pressed = true;
             isDialogDisplaying = !isDialogDisplaying;
             break;
+
+        case 'r':
+            keys.r.pressed = true;
+           // isrestartGame = !isrestartGame;
+            break;
     }
 });
 window.addEventListener('keyup', (e) => {
@@ -909,6 +938,10 @@ window.addEventListener('keyup', (e) => {
 
 });
 
+window.addEventListener('gameOver', (event) => {
+    isGameOVer= true; 
+        
+});
 
 
 
