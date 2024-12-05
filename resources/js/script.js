@@ -508,7 +508,7 @@ function gereciamentoDialogos(playerProperties, npc) {
                         ancientDialogue.texts = ancientDialogueAfterReward;
                     }
                 } else if (npc === master && !masterDialogue.rewardGiven) {
-                    playerProperties.damage += 1;
+                    player.properties.damage += 1;
                     masterDialogue.rewardGiven = true;
                     masterDialogue.texts = masterDialogueAfterReward;
                 }
