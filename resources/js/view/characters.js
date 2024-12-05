@@ -263,14 +263,12 @@ class Enemy {
         }
     }
 
-    pushEnemy(pushDirection, pushForce, pushStep) {
+    pushEnemy(damage, pushDirection, pushForce, pushStep) {
         if(!this.properties.isAlive) 
             return;
         let distanceMoved = 0;
-        this.properties.hp--;
-        const maxDistance = pushForce; 
-
-        
+        this.properties.hp-=damage;
+        const maxDistance = pushForce; // Máxima distância que o inimigo deve ser empurrado
         
         
         if(!this.isTakingDamage) {
