@@ -521,7 +521,11 @@ window.addEventListener('preloaded', (e) => {
         },
         q: {
             pressed: false
-        }   
+        },
+
+        r:{
+            pressed: false
+        }
     }
     
     let enemies = [fox01, fox02, fox03];
@@ -922,23 +926,29 @@ window.addEventListener('preloaded', (e) => {
             const centerX = canvas.width / 2;  
             const centerY = canvas.height / 2;
 
-            ctx.font = '30px Pretendo';
+            ctx.font = '40px zelda-font';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
         
             ctx.fillStyle= 'black';
-            ctx.fillRect(centerX - canvas.width / 4, centerY - canvas.height / 4, canvas.width / 2, canvas.height / 2);
-            ctx.fillStyle = 'white';
-            ctx.fillText(message, centerX, centerY - 50); 
-            ctx.fillText(`Score: ${score}`, centerX, centerY + 50); 
+            ctx.fillRect(0,0, canvas.width, canvas.height);
+            ctx.fillStyle = 'red';
+            ctx.fillText(message, centerX, centerY - 10); 
+            ctx.font = '20px zelda-font';
+            ctx.fillStyle= 'gray';
+            ctx.fillText('Try again press "r"', centerX, centerY + 50);
         }
     }
 
 
     function menu () {
+
         const centerX = canvas.width / 2;  
         const centerY = canvas.height / 2;
         let firstLineY = countY + 140;
+        const img = new Image();
+        img.src ='./resources/assets/zelda (1).png';
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
         ctx.font = '50px zelda-font';
         ctx.textAlign = 'center';
@@ -971,7 +981,7 @@ window.addEventListener('preloaded', (e) => {
     }
 
     canvas.addEventListener('click', (event) => {
-        if(currentState = GameState.MENU) {
+        if(currentState = GameState.GAME) {
             const rect = canvas.getBoundingClientRect(); // Obtém as coordenadas do canvas
             const mouseX = event.clientX - rect.left;
             const mouseY = event.clientY - rect.top;
@@ -1047,12 +1057,15 @@ window.addEventListener('preloaded', (e) => {
                 isDialogDisplaying = !isDialogDisplaying;
                 break;
     
-        case 'r':
-            keys.r.pressed = true;
-           // isrestartGame = !isrestartGame;
-            break;
-    }
+            case 'r':
+                keys.r.pressed = true;
+                if(isGameOVer){
+                    location.reload(); 
+                }
+                break;
+            }
     });
+
     window.addEventListener('keyup', (e) => {
         switch (e.key) {
             case 'w':
@@ -1085,6 +1098,7 @@ window.addEventListener('preloaded', (e) => {
     window.addEventListener('hit', (e) => {
         let enemy = e.detail.enemy;
         let index = effects.length;
+        audio.LinkDamage.play();
         const effect = {
             id: index,
             sprite: new Sprite({
@@ -1167,6 +1181,7 @@ window.addEventListener('preloaded', (e) => {
     
     window.addEventListener('defeated', (e) => {
         let enemy = e.detail.enemy;
+        audio.EnemyKill.play();
         const effect = {
             sprite: new Sprite({
                 animation: new Animation({
@@ -1209,6 +1224,7 @@ window.addEventListener('preloaded', (e) => {
         isGameOVer= true; 
             
     });
+
     
 });
 

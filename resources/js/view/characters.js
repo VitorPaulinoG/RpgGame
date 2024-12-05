@@ -26,7 +26,7 @@ class Player {
                 this.properties.hp -= enemy.properties.damage; 
 
                 this.hud.animation.setAnimation('idle', this.properties.hp); 
-                
+                audio.EnemyDamage.play();
                 this.isTakingDamage = true;
                 let i = 0;
                 let maxCount = 5;
