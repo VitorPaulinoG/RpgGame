@@ -1,6 +1,6 @@
 class Boundary {
-    static width = 36;
-    static height = 36;
+    static width = 48;
+    static height = 48;
     constructor ({position}, ctx ) {
         this.position = {
             x: position.x * Boundary.width,
@@ -13,6 +13,6 @@ class Boundary {
 
     draw () {
         this.ctx.fillStyle = 'rgba(100, 0, 255, 0.25)';
-        this.ctx.fillRect(this.position.x, this.position.y, Boundary.width, Boundary.height);
+        this.ctx.fillRect(this.position.x, this.position.y, this.width, this.height);
     }
 }

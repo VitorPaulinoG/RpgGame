@@ -22,7 +22,7 @@ window.addEventListener('preloaded', (e) => {
             sources: {
                 idle: {
                     paths: {
-                        0: './resources/assets/map.png'
+                        0: './resources/assets/map/background.png'
                     },
                     currentPath: 0,
                     frameCount: 1
@@ -45,7 +45,7 @@ window.addEventListener('preloaded', (e) => {
             sources: {
                 idle: {
                     paths: {
-                        0: './resources/assets/map-foreground.png'
+                        0: './resources/assets/map/foreground.png'
                     },
                     currentPath: 0,
                     frameCount: 1
@@ -234,7 +234,7 @@ window.addEventListener('preloaded', (e) => {
             }
         }),
         position: {
-            x: 760, 
+            x: 1220, 
             y: 50
         }, 
         width: fox01Image.width,
@@ -311,8 +311,8 @@ window.addEventListener('preloaded', (e) => {
             }
         }),
         position: {
-            x: -500, 
-            y: -250
+            x: 0, 
+            y: 250
         }, 
         width: fox02Image.width,
         opacity: 1,
@@ -388,8 +388,8 @@ window.addEventListener('preloaded', (e) => {
             }
         }),
         position: {
-            x: -650, 
-            y: 30
+            x: 200, 
+            y: 800
         }, 
         width: fox03Image.width,
         opacity: 1,
@@ -438,8 +438,8 @@ window.addEventListener('preloaded', (e) => {
             frameRate: 5
         }),
         position: {
-            x: 1000, 
-            y: 50
+            x: 1500, 
+            y: 800
         },
         opacity: 1,
         ctx: ctx
@@ -461,8 +461,8 @@ window.addEventListener('preloaded', (e) => {
             frameRate: 5
         }),
         position: {
-            x: 250, 
-            y: -400
+            x: -310, 
+            y: 115
         },
         opacity: 1,
         ctx: ctx
@@ -484,8 +484,8 @@ window.addEventListener('preloaded', (e) => {
             frameRate: 5
         }),
         position: {
-            x: -1000, 
-            y: -300
+            x: 2200, 
+            y: 800
         },
         opacity: 1,
         ctx: ctx
@@ -803,20 +803,7 @@ window.addEventListener('preloaded', (e) => {
         toOrderCharacters();
     
         
-        let currentDialogue = null;
-
-        if (ancientDialogue.verificarProximidadePlayer(player.sprite)) {
-            currentDialogue = ancientDialogue;
-        } else if (masterDialogue.verificarProximidadePlayer(player.sprite)) {
-            currentDialogue = masterDialogue;
-        } else if (farmerDialogue.verificarProximidadePlayer(player.sprite)) {
-            currentDialogue = farmerDialogue;
-        }
-
-        // Desenhar diálogo se ele já estiver sendo exibido
-        if (isDialogDisplaying && currentDialogue) {
-            currentDialogue.drawDialogue(ctx, canvas);
-        }
+        
     
         for(let effect of effects) {
             effect.sprite.position = {
@@ -1032,6 +1019,21 @@ window.addEventListener('preloaded', (e) => {
             ctx.font = '20px zelda-font';
             ctx.fillStyle= 'gray';
             ctx.fillText('Try again press "r"', centerX, centerY + 50);
+        }
+
+        let currentDialogue = null;
+
+        if (ancientDialogue.verificarProximidadePlayer(player.sprite)) {
+            currentDialogue = ancientDialogue;
+        } else if (masterDialogue.verificarProximidadePlayer(player.sprite)) {
+            currentDialogue = masterDialogue;
+        } else if (farmerDialogue.verificarProximidadePlayer(player.sprite)) {
+            currentDialogue = farmerDialogue;
+        }
+
+        // Desenhar diálogo se ele já estiver sendo exibido
+        if (isDialogDisplaying && currentDialogue) {
+            currentDialogue.drawDialogue(ctx, canvas);
         }
     }
 

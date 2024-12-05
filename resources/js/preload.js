@@ -33,8 +33,8 @@ if(!audio.Map.playing()){
 
 
 const collisionsMap = [];
-for (let i = 0; i < collisions.length; i+=70) {
-    collisionsMap.push(collisions.slice(i, 70 + i));
+for (let i = 0; i < collisions.length; i+=100) {
+    collisionsMap.push(collisions.slice(i, 100 + i));
 }
 
 const offset = {
@@ -45,14 +45,25 @@ const offset = {
 let boundaries = [];
 collisionsMap.forEach((row, i) => {
     row.forEach((symbol, j) => {
-        if (symbol === 1025) {
+        if (symbol === 6840) {
             boundaries.push(new Boundary({
                 position: {
-                    x: j-35.2,
-                    y: i-23.8
+                    x: j -26.5,
+                    y: i -17.7
                 }
             }, 
             ctx))
+        } else if (symbol === 6841) {
+            let boundary = new Boundary({
+                position: {
+                    x: j -26.5,
+                    y: i -17.7 + 0.5
+                }
+            }, 
+            ctx);
+            boundary.height = Boundary.height/2;
+
+            boundaries.push(boundary);
         }
     });
 });
@@ -73,10 +84,10 @@ const img = new Image();
 img.src ='./resources/assets/zelda (1).png';
 
 const backgroundImage = new Image();
-backgroundImage.src = './resources/assets/map.png';
+backgroundImage.src = './resources/assets/map/background.png';
 
 const foregroundImage = new Image();
-foregroundImage.src = './resources/assets/map-foreground.png';
+foregroundImage.src = './resources/assets/map/foreground.png';
 
 const playerImage = new Image();
 playerImage.src = './resources/assets/player/idle/down (3x).png';

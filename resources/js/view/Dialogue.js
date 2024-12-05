@@ -5,7 +5,7 @@ class Dialogue {
         this.currentTextIndex = 0;
     }
 
-    verificarProximidadePlayer(player, distance = 55) {
+    verificarProximidadePlayer(player, distance = 70) {
         const dx = player.position.x - this.npc.position.x;
         const dy = player.position.y - this.npc.position.y;
         return Math.sqrt(dx * dx + dy * dy) <= distance;
