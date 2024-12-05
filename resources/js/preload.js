@@ -13,7 +13,7 @@ let score=0;
 let message= 'Game Over';
 // Audios
 let audioInitialized = false;
-window.addEventListener('load', () => {
+window.addEventListener('click', () => {
     if(!audioInitialized){
         if(Howler.ctx.state === 'suspended'){
             Howler.ctx.resume().then(() => {
