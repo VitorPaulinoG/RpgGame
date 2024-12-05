@@ -1,4 +1,4 @@
-export class CharacterProperty {
+class CharacterProperty {
     constructor({hp, damage, velocity}) {
         this.hp = hp;
         this.damage = damage;
@@ -6,7 +6,7 @@ export class CharacterProperty {
         this.isAlive = true;
     }
 }
-export class Player {
+class Player {
     constructor ({sprite, properties, collider, boundaries, hud}) {
         this.sprite = sprite;
         this.properties = properties;
@@ -24,13 +24,9 @@ export class Player {
         if (!this.isTakingDamage) {
             if(this.properties.hp > 0) {
                 this.properties.hp -= enemy.properties.damage; 
-                console.log(`isDetectingPlayer:${enemy.isDetectingPlayer}`);
-                console.log(`isAttacking:${enemy.isAttacking}`);
-                console.log(`isPreAttacking:${enemy.isPreAttacking}`);
-                console.log(`isTakingDamage:${enemy.isTakingDamage}`);
 
                 this.hud.animation.setAnimation('idle', this.properties.hp); 
-                
+                audio.EnemyDamage.play();
                 this.isTakingDamage = true;
                 let i = 0;
                 let maxCount = 5;
@@ -91,8 +87,9 @@ export class Player {
     }
 }
 
-export class Enemy {
-    constructor ({sprite, properties, possibleMoves, boundaries, triggersOffset, collider, intervalToChangeDirection = {max: 5000, min: 2000}}) {
+class Enemy {
+    constructor ({sprite, properties, possibleMoves, boundaries, triggersOffset, 
+            collider, intervalToChangeDirection = {max: 5000, min: 2000}}) {
         this.sprite = sprite;
         this.properties = properties;
         this.forbiddenDir = -1;
@@ -139,11 +136,10 @@ export class Enemy {
             ];
     }
     moveEnemy () {
-        if(!this.properties.isAlive) 
-            return;
         setInterval(() => {
             this.forbiddenDir = this.canMove();
-            if(!this.isPreAttacking && !this.isAttacking && this.targetDir !== this.forbiddenDir) {
+            if(this.properties.isAlive && !this.isPreAttacking && !this.isAttacking && 
+                this.targetDir !== this.forbiddenDir) {
                 this.sprite.position.x += this.properties.velocity * this.possibleMoves[this.targetDir].x;
                 this.sprite.position.y += this.properties.velocity * this.possibleMoves[this.targetDir].y;
             }
@@ -185,7 +181,7 @@ export class Enemy {
                             position: this.triggers[i],
                             width: this.collider.width, 
                             height: this.collider.height});
-                        if(this.isAttacking && !this.isTakingDamage) {
+                        if(this.properties.isAlive && this.isAttacking && !this.isTakingDamage) {
                             this.isPreAttacking = false;
                             this.sprite.animation.setAnimation('melee', i);
                             
@@ -198,11 +194,6 @@ export class Enemy {
                                     })) {
                                         if(!this.isTakingDamage && this.properties.isAlive) {
                                             player.applyDamage(this);
-
-                                            console.log(`isAlive: ${this.properties.isAlive}`);
-                                            console.log(`properties.hp: ${this.properties.hp}`);
-                                            console.log(`isTakingDamage: ${this.isTakingDamage}`);
-                                            console.log(`isDetectingPlayer: ${this.isDetectingPlayer}`);
                                         }
                                         
                                     }
@@ -219,7 +210,8 @@ export class Enemy {
                             this.isAttacking = false;
                             return;
                         }
-                    } else {
+                    } 
+                    else {
                         clearInterval(meleeInterval);
                         return;
                     }
@@ -237,6 +229,10 @@ export class Enemy {
         let executionCount = 0; 
         const maxExecutionsBeforeChange = 5; 
         this.intervalId = setInterval(() => {
+            // if(!this.properties.isAlive) {
+            //     clearInterval(this.intervalId);
+            //     return;
+            // }
             if(!this.isAttacking) {    
                 do {
                     this.targetDir = Math.floor(Math.random() * this.possibleMoves.length);
@@ -272,14 +268,20 @@ export class Enemy {
             return;
         let distanceMoved = 0;
         this.properties.hp--;
-        const maxDistance = pushForce; // Máxima distância que o inimigo deve ser empurrado
-        
-        
-        // Intervalo para deslocar o inimigo gradualmente
-        this.sprite.filter = "saturate(1.2) hue-rotate(-30deg)";
-        if(!this.isTakingDamage) {
-            this.isTakingDamage = true;
+        const maxDistance = pushForce; 
 
+        
+        
+        
+        if(!this.isTakingDamage) {
+            this.sprite.filter = "saturate(1.2) hue-rotate(-30deg)";
+            window.dispatchEvent(new CustomEvent('hit', {
+                detail: {
+                    enemy: this
+                }
+            }));
+            this.isTakingDamage = true;
+            
             const pushInterval = setInterval(() => {
                 const newPosition = {
                     x: pushDirection.x * pushStep,
@@ -299,14 +301,17 @@ export class Enemy {
                         clearInterval(pushInterval); 
                     }
                 } else {
+                    this.isTakingDamage = false;
                     clearInterval(pushInterval); 
                 }
                 setTimeout(() => {
                     this.sprite.filter = "none";
-                    if(this.properties.hp <= 0) {
-                        this.properties.isAlive = false;
-                        console.log('O inimigo morreu');
-                        this.removeEnemy();
+                    if(this.properties.isAlive && this.properties.hp <= 0) {
+                        window.dispatchEvent(new CustomEvent('final-hit', {
+                            detail: {
+                                enemy: this
+                            }
+                        }));
                     }
                     setTimeout(() => this.isTakingDamage = false, 600);
                 }, 10 * maxDistance);
@@ -318,26 +323,22 @@ export class Enemy {
     }
 
     removeEnemy() {
-        // Remove o inimigo visualmente
-        this.isAlive = false;
-        let opacity = 100;
-        
-        let interval = setInterval(() => {
-            opacity -= 30;
-            if(opacity <= 0) {
-                this.sprite.position = {
-                    x: 20000, y: 20000.
+        if(this.properties.isAlive) {
+            this.properties.isAlive = false;
+            let opacity = 100;
+            
+            let interval = setInterval(() => {
+                opacity -= 30;
+                if(opacity <= 0) {
+                    this.sprite.opacity = 0; 
+                    clearInterval(interval);
+                } else {
+                    this.sprite.opacity = opacity/100;
                 }
-                clearInterval(interval);
-            } else {
-
-                this.sprite.filter = `opacity(${opacity/100})`; // Exemplo para esconder o sprite
-            }
-        }, 16);
-        // this.collider = null;
-
-        // clearInterval(this.intervalId); 
+            }, 16);
+        }
     }
+
     willCollide(position) {
         for (let i = 0; i < this.boundaries.length; i++) {
             const boundary = this.boundaries[i];
@@ -362,6 +363,7 @@ export class Enemy {
         }
         return false;
     }
+
     canMove () {
         for (let i = 0; i < this.boundaries.length; i++) {
             const boundary = this.boundaries[i];

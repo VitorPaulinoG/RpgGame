@@ -1,4 +1,4 @@
-export class Boundary {
+class Boundary {
     static width = 36;
     static height = 36;
     constructor ({position}, ctx ) {
@@ -12,7 +12,7 @@ export class Boundary {
     }
 
     draw () {
-        this.ctx.fillStyle = 'rgba(255, 0, 0, 0)';
+        this.ctx.fillStyle = 'rgba(100, 0, 255, 0.25)';
         this.ctx.fillRect(this.position.x, this.position.y, Boundary.width, Boundary.height);
     }
 }

@@ -1,4 +1,4 @@
-export class Dialogue {
+class Dialogue {
     constructor(npc, text) {
         this.npc = npc;
         this.text = text;

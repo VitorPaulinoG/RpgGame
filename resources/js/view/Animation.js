@@ -1,4 +1,4 @@
-export class Animation {
+class Animation {
     constructor ({hasAnimations, sources, image, isPlaying, frameRate, aditionalConditions}) {
         this.sources = sources;
         this.image = image;
@@ -7,8 +7,12 @@ export class Animation {
         this.frameElapsed = 0;
         this.frameRate = frameRate;
         this.frameNumber = 0;
-        this.currentSource = this.sources['idle'];
-        this.currentSource.currentPath = 0;
+        this.setAnimation('idle', 0);
+  
+        
+
+        
+
         this.image.src = this.currentSource.paths[0];
         this.additionalConditions = aditionalConditions;
     }
