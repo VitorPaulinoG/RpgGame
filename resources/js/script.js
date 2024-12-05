@@ -6,7 +6,11 @@ const GameState = {
   };
 
 let isPaused = true;
-
+let rewardEvent = new CustomEvent('reward', {
+    detail: {
+        sound: () => audio.Reward.play()
+    }
+})
 
 window.addEventListener('preloaded', (e) => {
     let currentState = GameState.MENU;
@@ -577,11 +581,13 @@ window.addEventListener('preloaded', (e) => {
                     if (npc === ancient && !ancientDialogue.rewardGiven) {
                         if (player.properties.hp < 3) {
                             player.properties.hp += 1;
+                            window.dispatchEvent(rewardEvent);
                             hud.animation.setAnimation('idle', player.properties.hp); // Ganha 1 de vida
                             ancientDialogue.rewardGiven = true;
                             ancientDialogue.texts = ancientDialogueAfterReward;
                         }
                     } else if (npc === master && !masterDialogue.rewardGiven) {
+                        window.dispatchEvent(rewardEvent);
                         player.properties.damage += 1;
                         masterDialogue.rewardGiven = true;
                         masterDialogue.texts = masterDialogueAfterReward;
@@ -1320,7 +1326,10 @@ window.addEventListener('preloaded', (e) => {
         isGameOVer= true; 
             
     });
-
+    window.addEventListener('reward', (event) => {
+        event.detail.sound();
+            
+    });
     
 });
 
