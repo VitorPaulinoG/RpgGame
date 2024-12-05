@@ -137,6 +137,8 @@ class Enemy {
     }
     moveEnemy () {
         setInterval(() => {
+            if(isPaused)
+                return;
             this.forbiddenDir = this.canMove();
             if(this.properties.isAlive && !this.isPreAttacking && !this.isAttacking && 
                 this.targetDir !== this.forbiddenDir) {
@@ -148,7 +150,9 @@ class Enemy {
 
     detectPlayer (player) {
         if(!this.properties.isAlive) 
-            return
+            return;
+        if(isPaused)
+            return;
         this.updateTriggers();
         for (let i = 0; i < this.triggers.length; i++) {
             this.isDetectingPlayer = 
@@ -224,7 +228,6 @@ class Enemy {
     changeDirection () {
         if(!this.properties.isAlive) 
             return;
-        
         let randomInterval = Math.floor(Math.random() * (5000 - 2000 + 1)) + 2000;
         let executionCount = 0; 
         const maxExecutionsBeforeChange = 5; 
@@ -233,6 +236,8 @@ class Enemy {
             //     clearInterval(this.intervalId);
             //     return;
             // }
+            if(isPaused)
+                return;
             if(!this.isAttacking) {    
                 do {
                     this.targetDir = Math.floor(Math.random() * this.possibleMoves.length);

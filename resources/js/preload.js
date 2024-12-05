@@ -69,6 +69,8 @@ const enemyPossibleMoves = [
 
 
 // -------   Game Objects    -----
+const img = new Image();
+img.src ='./resources/assets/zelda (1).png';
 
 const backgroundImage = new Image();
 backgroundImage.src = './resources/assets/map.png';
@@ -110,7 +112,7 @@ async function loadFonts () {
 }
 
 const imgs = [
-    backgroundImage, foregroundImage, playerImage, 
+    img, backgroundImage, foregroundImage, playerImage, 
     fox01Image, fox02Image, fox03Image, hudImage, 
     atackEffectImage, ancientImage, masterImage, 
     farmerImage];

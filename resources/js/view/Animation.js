@@ -29,7 +29,7 @@ class Animation {
     }
 
     processAnimation() {
-        if (!this.hasAnimations || !this.isPlaying)
+        if (!this.hasAnimations || !this.isPlaying || isPaused)
             return;            
 
         if(this.currentSource.frameCount > 1) {

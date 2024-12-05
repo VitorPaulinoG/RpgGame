@@ -5,10 +5,12 @@ const GameState = {
     GAME: 'game'
   };
 
+let isPaused = true;
+
 
 window.addEventListener('preloaded', (e) => {
     let currentState = GameState.MENU;
-
+    
 
     const background = new Sprite({
         animation: new Animation ({
@@ -547,6 +549,7 @@ window.addEventListener('preloaded', (e) => {
             if (!isDialogDisplaying) {
                 // Inicia o diálogo
                 isDialogDisplaying = true;
+                isPaused = true;
                 currentDialogue.currentTextIndex = 0;
     
                 // Verifica condições no diálogo
@@ -568,6 +571,7 @@ window.addEventListener('preloaded', (e) => {
                 
                 if (currentDialogue.currentTextIndex === -1) {
                     isDialogDisplaying = false;
+                    isPaused = false;
     
                     // Oferece recompensas
                     if (npc === ancient && !ancientDialogue.rewardGiven) {
@@ -762,8 +766,8 @@ window.addEventListener('preloaded', (e) => {
         if(running) {
             animationFrameId = window.requestAnimationFrame(animate);
         }
+        
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
         switch (currentState) {
             case GameState.GAME: 
                 game();
@@ -1031,8 +1035,7 @@ window.addEventListener('preloaded', (e) => {
         const centerX = canvas.width / 2;  
         const centerY = canvas.height / 2;
         let firstLineY = countY + 140;
-        const img = new Image();
-        img.src ='./resources/assets/zelda (1).png';
+        
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
         ctx.font = '50px zelda-font';
@@ -1066,7 +1069,7 @@ window.addEventListener('preloaded', (e) => {
     }
 
     canvas.addEventListener('click', (event) => {
-        if(currentState = GameState.GAME) {
+        if(currentState === GameState.MENU) {
             const rect = canvas.getBoundingClientRect(); // Obtém as coordenadas do canvas
             const mouseX = event.clientX - rect.left;
             const mouseY = event.clientY - rect.top;
@@ -1085,6 +1088,8 @@ window.addEventListener('preloaded', (e) => {
                 mouseY <= button.y + button.height
               ) {
                 console.log("Clicou");
+                isPaused = false;
+                currentState = GameState.GAME;
                 // button.action(); // Executa a ação associada ao botão
               }
         }
@@ -1110,26 +1115,26 @@ window.addEventListener('preloaded', (e) => {
         switch (e.key) {
             case 'w':
                
-                if(!keys.s.pressed) {
+                if(!keys.s.pressed && !isPaused) {
                     keys.w.pressed = true;
                     lastkey = 'w';
                 }
             
             break;
             case 's':
-                if(!keys.w.pressed) {
+                if(!keys.w.pressed && !isPaused) {
                     keys.s.pressed = true;
                     lastkey = 's';
                 }
             break;
             case 'a':
-                if(!keys.d.pressed) {
+                if(!keys.d.pressed && !isPaused) {
                     keys.a.pressed = true;
                     lastkey = 'a';
                 }
             break;
             case 'd':
-                if(!keys.a.pressed) {
+                if(!keys.a.pressed && !isPaused) {
                     keys.d.pressed = true;
                     lastkey = 'd';
                 }
