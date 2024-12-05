@@ -37,19 +37,20 @@ class Dialogue {
         const dialogueBoxHeight = 100;
         const x = canvas.width / 2 - dialogueBoxWidth / 2;
         const y = canvas.height - dialogueBoxHeight - 120;
-    
+        ctx.textAlign = 'start';
+        ctx.textBaseline = 'center';
         // Desenha a caixa de diálogo
         ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
         ctx.fillRect(x, y, dialogueBoxWidth, dialogueBoxHeight);
-    
+        
         ctx.strokeStyle = "white";
         ctx.lineWidth = 2;
         ctx.strokeRect(x, y, dialogueBoxWidth, dialogueBoxHeight);
-    
+        
         // Configurações de texto
         ctx.fillStyle = "white";
-        ctx.font = "18px Arial";
-    
+        ctx.font = '18px Pretendo';
+        
         // Função para desenhar o texto com quebra de linha
         this.drawWrappedText(ctx, text, x + 20, y + 30, dialogueBoxWidth - 40, 24);
     }
