@@ -808,7 +808,7 @@ function animate () {
     
             if(collisionDetection(atackTrigger, fox01.collider)) {
                 let direction = playerDirection;
-                fox01.pushEnemy(fox01.possibleMoves[direction + 1], 100, 3);
+                fox01.pushEnemy(player.properties.damage,fox01.possibleMoves[direction + 1], 100, 3);
                 
     
             }
