@@ -191,7 +191,7 @@ export class Enemy {
                                             player.applyDamage(this);
 
                                             console.log(`isAlive: ${this.properties.isAlive}`);
-                                            console.log(`properties.hp: ${this.properties.hp}`);
+                                            console.log(`properties.hp: ${player.properties.hp}`);
                                             console.log(`isTakingDamage: ${this.isTakingDamage}`);
                                             console.log(`isDetectingPlayer: ${this.isDetectingPlayer}`);
                                         }

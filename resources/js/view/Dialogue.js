@@ -23,7 +23,7 @@ export class Dialogue {
         const currentText = this.texts[this.currentTextIndex];
     // Verifica se o texto é um objeto e acessa a chave 'messages'
         if (typeof currentText === "object" && currentText.messages) {
-        return currentText.messages[0]; // Acessa o primeiro item da mensagem
+            return currentText.messages[0]; // Acessa o primeiro item da mensagem
         }
         return currentText;
     }

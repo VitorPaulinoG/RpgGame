@@ -480,24 +480,30 @@ function gereciamentoDialogos(playerProperties, npc) {
             currentDialogue.currentTextIndex = 0;
 
             // Verifica condições no diálogo
-            const currentText = currentDialogue.texts[currentDialogue.currentTextIndex];
-            if (typeof currentText === 'object' && currentText.condition) {
-                if (currentText.condition(playerProperties)) {
-                    currentDialogue.texts = currentText.messages;
-                    currentDialogue.currentTextIndex = 0; // Reinicia o índice
-                }
-            }
+            
         } else {
-            currentDialogue.nextText();
+            const nextText = currentDialogue.texts[currentDialogue.currentTextIndex + 1];
 
+            if (typeof nextText === 'object' && nextText.condition) {
+                if (nextText.condition(player.properties)) {   
+                    currentDialogue.nextText();
+                } else {
+                    currentDialogue.currentTextIndex = -1;
+                }
+            
+            } else {
+                currentDialogue.nextText();
+            }
+
+            
             if (currentDialogue.currentTextIndex === -1) {
                 isDialogDisplaying = false;
 
                 // Oferece recompensas
                 if (npc === ancient && !ancientDialogue.rewardGiven) {
-                    if (playerProperties.hp < 3) {
-                        let i = playerProperties.hp + 1;
-                        hud.animation.setAnimation(('idle', i)); // Ganha 1 de vida
+                    if (player.properties.hp < 3) {
+                        player.properties.hp += 1;
+                        hud.animation.setAnimation('idle', player.properties.hp); // Ganha 1 de vida
                         ancientDialogue.rewardGiven = true;
                         ancientDialogue.texts = ancientDialogueAfterReward;
                     }
