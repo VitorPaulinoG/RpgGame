@@ -1,5 +1,5 @@
 export class Animation {
-    constructor ({hasAnimations, sources, image, isPlaying, frameRate}) {
+    constructor ({hasAnimations, sources, image, isPlaying, frameRate, aditionalConditions}) {
         this.sources = sources;
         this.image = image;
         this.hasAnimations = hasAnimations;
@@ -10,6 +10,7 @@ export class Animation {
         this.currentSource = this.sources['idle'];
         this.currentSource.currentPath = 0;
         this.image.src = this.currentSource.paths[0];
+        this.additionalConditions = aditionalConditions;
     }
 
     setAnimation(name, number) {
@@ -34,10 +35,14 @@ export class Animation {
         if(this.frameElapsed % this.frameRate === 0 && this.frameElapsed != 0) {
             if(this.frameNumber < this.currentSource.frameCount - 1) 
                 this.frameNumber++;
-            else if (this.currentSource === this.sources['melee']) 
-                this.isPlaying = false; 
-            else 
-                this.frameNumber = 0;
+            else {
+                if (this.additionalConditions !== null && this.additionalConditions !== undefined) 
+                    this.additionalConditions(this);
+                else 
+                    this.frameNumber = 0;
+                // if (this.currentSource === this.sources['melee']) 
+                //     this.isPlaying = false;    
+            }    
         }
     }
 }

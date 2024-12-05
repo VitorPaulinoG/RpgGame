@@ -1,0 +1,9 @@
+const menu = document.createElement('div');
+menu.style.display = 'flex';
+menu.style.flexDirection = 'column';
+menu.style.justifyContent = 'center';
+menu.style.alignItems = 'center';
+menu.style.height = '100vh';
+menu.style.backgroundColor = '#333';
+menu.style.color = 'white';
+menu.style.fontFamily = '';
