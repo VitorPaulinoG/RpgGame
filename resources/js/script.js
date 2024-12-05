@@ -213,8 +213,6 @@ const hud = new Sprite({
 
 hud.animation.setAnimation('idle', 3);
 
-
-
 const playerProperties = new CharacterProperty({
     hp: 3, 
     damage: 1, 
@@ -399,7 +397,6 @@ const master = new Sprite({
 });
 
 
-
 const farmerImage = new Image();
 farmerImage.src = './resources/assets/npc/farmer/farmer.png';
 const farmer = new Sprite({
@@ -424,22 +421,97 @@ const farmer = new Sprite({
     opacity: 1,
     ctx: ctx
 });
-let playerLife = 3;
 
-const dialogues = [
-    new Dialogue(ancient, "Olá, viajante! Você quer mais vidas?"),
-    new Dialogue(master, "Você quer melhorar suas habilidades, viajante?"),
-    new Dialogue(farmer, "Esses malditos monstros! Estão destruindo a vila!")
-];
 let isDialogDisplaying = false;
-function getCurrentDialogue(player) {
-    for (const dialogue of dialogues) {
-        if (dialogue.verificarProximidadePlayer(player)) {
-            return dialogue.text;
+
+const ancientDialogueBeforeReward = [
+    "Jovem... Estou vendo que sua jornada é desafiadora. Enfrentar monstros terríveis não é uma tarefa fácil!",
+    "Por isso, se você quiser eu posso recuperar um pouco da sua vida. O que acha?",
+    { 
+        condition: (playerProperties) => playerProperties.hp === 3, 
+        messages: [
+            "Hmm... Parece que você já está com sua vida cheia.",
+            "Volte aqui quando estiver precisando de ajuda novamente."
+        ]
+    }
+];
+
+const ancientDialogueAfterReward = [
+    "Hmm... Você deve estar precisando de outra recuperação, certo? Contudo, tenho algo pra te dizer...",
+    "Se vira, macho!!! HAHAHAHAAA...."
+];
+
+
+const masterDialogueBeforeReward = [
+    "Você quer melhorar suas habilidades, viajante?",
+    "Eu posso ensinar novas técnicas se você estiver pronto."
+];
+
+const masterDialogueAfterReward = [
+    "Agora você está mais forte, continue sua jornada!",
+    "Volte quando tiver mais experiência."
+];
+
+const fmDialogue = ["Esses malditos monstros! Estão destruindo a vila!"];
+
+const ancientDialogue = new Dialogue(ancient, ancientDialogueBeforeReward);
+const masterDialogue = new Dialogue(master, masterDialogueBeforeReward);
+const farmerDialogue = new Dialogue(farmer, fmDialogue);
+
+ancientDialogue.rewardGiven = false;
+masterDialogue.rewardGiven = false;
+
+
+function gereciamentoDialogos(playerProperties, npc) {
+    let currentDialogue;
+
+    if (npc === ancient) {
+        currentDialogue = ancientDialogue;
+    } else if (npc === master) {
+        currentDialogue = masterDialogue;
+    } else if (npc === farmer) {
+        currentDialogue = farmerDialogue;
+    }
+
+    if (currentDialogue) {
+        if (!isDialogDisplaying) {
+            // Inicia o diálogo
+            isDialogDisplaying = true;
+            currentDialogue.currentTextIndex = 0;
+
+            // Verifica condições no diálogo
+            const currentText = currentDialogue.texts[currentDialogue.currentTextIndex];
+            if (typeof currentText === 'object' && currentText.condition) {
+                if (currentText.condition(playerProperties)) {
+                    currentDialogue.texts = currentText.messages;
+                    currentDialogue.currentTextIndex = 0; // Reinicia o índice
+                }
+            }
+        } else {
+            currentDialogue.nextText();
+
+            if (currentDialogue.currentTextIndex === -1) {
+                isDialogDisplaying = false;
+
+                // Oferece recompensas
+                if (npc === ancient && !ancientDialogue.rewardGiven) {
+                    if (playerProperties.hp < 3) {
+                        let i = playerProperties.hp + 1;
+                        hud.animation.setAnimation(('idle', i)); // Ganha 1 de vida
+                        ancientDialogue.rewardGiven = true;
+                        ancientDialogue.texts = ancientDialogueAfterReward;
+                    }
+                } else if (npc === master && !masterDialogue.rewardGiven) {
+                    playerProperties.damage += 1;
+                    masterDialogue.rewardGiven = true;
+                    masterDialogue.texts = masterDialogueAfterReward;
+                }
+            }
         }
     }
-    return ""; // Se não houver diálogo, retorna vazio
 }
+
+
 
 const keys = {
     w: {
@@ -615,24 +687,24 @@ function animate () {
     fox01.collider.updateCollider()
 
     
-    
     toOrderCharacters();
 
 
-    
-    if (isDialogDisplaying) {
-        const currentDialogueText = getCurrentDialogue(player.sprite); 
-        if(currentDialogueText) {
-            const currentDialogue = dialogues.find(d => d.text === currentDialogueText);
-            if (currentDialogue) {
-                currentDialogue.drawDialogue(ctx, canvas);
-            }
+    let currentDialogue = null;
 
-        } else {
-            isDialogDisplaying = false;
-        }
-        
+    if (ancientDialogue.verificarProximidadePlayer(player.sprite)) {
+        currentDialogue = ancientDialogue;
+    } else if (masterDialogue.verificarProximidadePlayer(player.sprite)) {
+        currentDialogue = masterDialogue;
+    } else if (farmerDialogue.verificarProximidadePlayer(player.sprite)) {
+        currentDialogue = farmerDialogue;
     }
+
+    // Desenhar diálogo se ele já estiver sendo exibido
+    if (isDialogDisplaying && currentDialogue) {
+        currentDialogue.drawDialogue(ctx, canvas);
+    }
+    
 
 
     foreground.draw();
@@ -876,8 +948,14 @@ window.addEventListener('keydown', (e) => {
             break;
         case 'q':
             keys.q.pressed = true;
-            isDialogDisplaying = !isDialogDisplaying;
-            break;
+            if (ancientDialogue.verificarProximidadePlayer(player.sprite)) {
+                gereciamentoDialogos(player, ancient);
+            } else if (masterDialogue.verificarProximidadePlayer(player.sprite)) {
+                gereciamentoDialogos(player, master);
+            } else if (farmerDialogue.verificarProximidadePlayer(player.sprite)) {
+                gereciamentoDialogos(player, farmer);
+            }
+        break;
     }
 });
 window.addEventListener('keyup', (e) => {
