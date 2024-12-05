@@ -7,13 +7,16 @@ html, body {
 
 body {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     
 }
 
 canvas {
-    background-color: whitesmoke;
+    /* background-color: whitesmoke; */
+    display: block;
     border-radius: 20px;
     border: 2px solid black;
 }
+
